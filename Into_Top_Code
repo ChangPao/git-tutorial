@@ -1,0 +1,81 @@
+/*************************************************************************
+
+File Name:			  Code for Intro_Top and all.v
+Revision Date:		1/14/15 @ 9:30pm
+Author:				    Chang Pao Herr
+Description:		  Lab1, week 2
+
+*************************************************************************/
+
+/********************************************************
+
+Module Name:		Intro_Top
+Revision:			  Rev. 0.1
+
+*********************************************************/
+
+module Intro_Top (output X, Y, Z, input A, B, C, D); 
+  wire ab, bc, q, qn; 	// Wires for internal connectivity. 
+  
+  				// Implied wires may be assumed in this combinational
+  				// design, when connecting declared ports to instance ports. 
+  				// The #1 is a delay time, in `timescale units: 
+  
+  assign #1 Z = ~qn; 	// Inverter by continuous assignment statement. 
+  
+  AndOr InputCombo01 (.X(ab), .Y(bc), .A(A), .B(B), .C(C)); 
+  SR SRLatch01 (.Q(q), .Qn(qn), .S(bc), .R(D)); 
+  XorNor OutputCombo01 (.X(X), .Y(Y), .A(ab), .B(q), .C(qn));
+  
+endmodule // Intro_Top.
+
+
+/********************************************************
+
+Module Name:		AndOr
+Revision:			Rev. 0.1
+
+*********************************************************/
+
+module AndOr (output X, Y, input A, B, C);
+ //
+ assign #10 X = A & B;
+ assign #10 Y = B | C;
+ //
+endmodule // AndOr. 
+
+
+/********************************************************
+
+Module Name:		SR
+Revision:			Rev. 0.1
+
+*********************************************************/
+
+module SR (output Q, Qn, input S, R);
+ wire q, qn; // For internal wiring.
+ //
+ assign #10 Q = q;
+ assign #10 Qn = qn;
+ //
+ assign #20 q = ~(S & qn);
+ assign #20 qn = ~(R & q );
+ //
+endmodule // SR. 
+
+/********************************************************
+
+Module Name:		XorNor
+Revision:			Rev. 0.1
+
+*********************************************************/
+
+module XorNor (output X, Y, input A, B, C);
+ wire x; // To illustrate use of internal wiring.
+ //
+ assign #1 X = x; // Verilog is case-sensitive; 'X' and 'x' are different.
+ //
+ assign #10 x = A ^ B;
+ assign #10 Y = ~(x | C);
+ //
+endmodule // XorNor. 
