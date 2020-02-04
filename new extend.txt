@@ -1,0 +1,135 @@
+// ===========================================================
+// Extend:   A simple design showing the effect of
+// logic value extension when assigning a bit to a vector.
+//
+// ANSI module header.
+// ------------------------------------------------------------
+// 2005-11-02 jmw:  v. 1.2 Moved reg dec inside module.
+// 2004-12-05 jmw:  v. 1.1 Fixed "array" to "vector".
+// 2004-11-30 jmw:  v. 1.0 implemented.
+// ============================================================
+`timescale 1ns/100ps
+//
+module Extend (output[47:0] My48bits, My48bit);
+  // No need for inputs.
+  // For good design practice, the outputs are converted
+  // explicitly from reg to wire by continuous assigns.
+  //
+  reg[47:0] My48bitsReg, My48bitReg;
+  assign My48bits = My48bitsReg;
+  assign My48bit  = My48bitReg;
+  //
+  // An initial block is procedural and thus is not
+  // allowed to assign to a wire -- only to a reg or
+  // integer:
+  //
+  initial
+    begin
+    #1   My48bitsReg =  10'bzzz;
+    	#0.9 My48bitReg  = 14'bzz;
+    #3   My48bitsReg =  10'bxz1;
+    	#3.9 My48bitReg  = 14'bxx;
+    #5   My48bitsReg =  10'b011;
+    	#0.9 My48bitReg  = 14'b0110;
+    #7   My48bitsReg =  10'b1111;
+    	#3.9 My48bitReg  = 14'b111;
+      
+      // new set duplicate for hex but it doesn't work
+    #1   My48bitsReg =  12'bzzz;
+    	#0.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #3   My48bitsReg =  12'b01;
+    	#0.9 My48bitReg  = 4'b1100;
+    #2   My48bitsReg =  12'b111;
+    	#3.9 My48bitReg  = 14'b0011;
+      
+      // another test
+    #1   My48bitsReg =  12'bzzz;
+    	#0.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bxzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #5   My48bitsReg =  12'b0111;
+    	#0.9 My48bitReg  = 4'b0110;
+    #7   My48bitsReg =  12'b1111;
+    	#3.9 My48bitReg  = 14'b1111;
+      
+            // new set duplicate for hex
+    #1   My48bitsReg =  12'bzzz;
+    	#0.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #3   My48bitsReg =  12'b01;
+    	#0.9 My48bitReg  = 4'b1100;
+    #2   My48bitsReg =  12'b111;
+    	#3.9 My48bitReg  = 14'b0011;
+      
+      // another test
+    #1   My48bitsReg =  12'bzzz;
+    	#0.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bxzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #5   My48bitsReg =  12'b0111;
+    	#0.9 My48bitReg  = 4'b0110;
+    #7   My48bitsReg =  12'b1111;
+    	#3.9 My48bitReg  = 14'b1111;
+      
+      //here is another ran of all 
+      
+          #1   My48bitsReg =  10'bzzz;
+    	#0.9 My48bitReg  = 14'bzz;
+    #3   My48bitsReg =  10'bxz1;
+    	#3.9 My48bitReg  = 14'bxx;
+    #5   My48bitsReg =  10'b011;
+    	#0.9 My48bitReg  = 14'b0110;
+    #7   My48bitsReg =  10'b1111;
+    	#3.9 My48bitReg  = 14'b111;
+      
+      // new set duplicate for hex but it doesn't work
+    #1   My48bitsReg =  12'bzzz;
+    	#0.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #3   My48bitsReg =  12'b01;
+    	#0.9 My48bitReg  = 4'b1100;
+    #2   My48bitsReg =  12'b111;
+    	#3.9 My48bitReg  = 14'b0011;
+      
+      // another test
+    #1   My48bitsReg =  12'bzzz;
+    	#0.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bxzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #5   My48bitsReg =  12'b0111;
+    	#0.9 My48bitReg  = 4'b0110;
+    #7   My48bitsReg =  12'b1111;
+    	#3.9 My48bitReg  = 14'b1111;
+      
+            // new set duplicate for hex
+    #1   My48bitsReg =  12'bzzz;
+    	#0.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #3   My48bitsReg =  12'b01;
+    	#0.9 My48bitReg  = 4'b1100;
+    #2   My48bitsReg =  12'b111;
+    	#3.9 My48bitReg  = 14'b0011;
+      
+      // another test
+    #1   My48bitsReg =  12'bzzz;
+    	#0.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bxzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #5   My48bitsReg =  12'b0111;
+    	#0.9 My48bitReg  = 4'b0110;
+    #7   My48bitsReg =  12'b1111;
+    	#3.9 My48bitReg  = 14'b1111;
+    #9 $finish;
+    end
+  //
+ initial begin
+ $dumpfile("dump.vcd");
+ $dumpvars; //dump all variables in testbench & desig
+ end
+
+endmodule // Extend

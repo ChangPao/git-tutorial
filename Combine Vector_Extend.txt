@@ -1,0 +1,126 @@
+/*===========================================================
+
+Author:  Chang Herr
+Date: 01-29-20
+Lab Assignment # 2
+
+This program is modified the Extend code from professor A. Yang.
+The goal is to combine the two codes (vector and extend) together.
+
+
+// Extend:   A simple design showing the effect of
+// logic value extension when assigning a bit to a vector.
+//
+// ANSI module header.
+// ------------------------------------------------------------
+// 2005-11-02 jmw:  v. 1.2 Moved reg dec inside module.
+// 2004-12-05 jmw:  v. 1.1 Fixed "array" to "vector".
+// 2004-11-30 jmw:  v. 1.0 implemented.
+// ============================================================*/
+`timescale 1ns/100ps
+//
+module Extend (output[47:0] My48bits, My48bit);
+  
+  wire[15:0] mybus;  // A 16-bit bus.
+  wire   	mybit_L, mybit_H;  // One bit bus.
+  reg[0:15] MyBus;  // A vector of 16 bits of storage.
+  
+  reg[47:0] My48bitsReg, My48bitReg;
+  reg[47:0] My48bits, My48bit;
+
+ // assign My48bits = My48bitsReg;
+ // assign My48bit  = My48bitReg;
+  
+  assign mybus = 16'heeee; // Continuously drive the wire bus.
+  assign mybit_L = 1'b0;     // Hold the wire at 0.
+  assign mybit_H = 1'b1;     // Hold the wire at 1.
+
+  initial
+    begin
+    #3   My48bitsReg =  10'bzzz;
+    	#2.9 My48bitReg  = 14'bzz;
+    #3   My48bitsReg =  10'bxz1;
+    	#3.9 My48bitReg  = 14'bxx;
+    #5  My48bitsReg =  10'b011;
+    	#2.9 My48bitReg  = 14'b0110;
+    #7   My48bitsReg =  10'b1111;
+    	#3.9 My48bitReg  = 14'b111;
+      
+      // new set duplicate for hex but it doesn't work
+    #1   My48bitsReg =  12'bzzz;
+    	#2.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #3   My48bitsReg =  12'b01;
+    	#2.9 My48bitReg  = 4'b1100;
+    #2   My48bitsReg =  12'b111;
+    	#3.9 My48bitReg  = 14'b0011;
+      
+      // another test
+    #1   My48bitsReg =  12'bzzz;
+    	#5.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bxzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #5   My48bitsReg =  12'b0111;
+    	#2.9 My48bitReg  = 4'b0110;
+    #7   My48bitsReg =  12'b1111;
+    	#3.9 My48bitReg  = 14'b1111;
+      
+            // new set duplicate for hex
+    #1   My48bitsReg =  12'bzzz;
+    	#1.9 My48bitReg  = 4'bzz;
+    #3   My48bitsReg =  12'bzz1;
+    	#3.9 My48bitReg  = 4'bxx;
+    #3   My48bitsReg =  12'b01;
+    	#2.9 My48bitReg  = 4'b1100;
+    #2   My48bitsReg =  12'b111;
+    	#3.9 My48bitReg  = 14'b0011;
+      
+    #10 MyBus        = 16'h3333;
+    #1 MyBus[0:2]   = mybus[10:8];  // MSB always on the left.
+    #10 MyBus        = mybus;
+    #1 MyBus[0:15]  = mybus[15:0];
+    #10 MyBus[0]     = mybit_L;        // Zero the MSB.
+    
+    #10 MyBus[0]     = mybit_H;        // Zero the MSB.
+  //
+    #1 MyBus = 16'hxxxx; // Flag the end of this step in the lab.
+    #5  My48bits  = 'bz;
+    #5  My48bits  = 'bx;
+    #5  My48bits  = 'b0;
+    #5  My48bits  = 'b1;
+    #10 ;
+    #5  My48bits  = 1'bz;
+    #5  My48bits  = 1'bx;
+    #5  My48bits  = 1'b0;
+    #5  My48bits  = 1'b1;
+    
+    //duplicate to another drive
+    #10 MyBus        = 16'h3333;
+    #1 MyBus[0:2]   = mybus[10:8];  // MSB always on the left.
+    #10 MyBus        = mybus;
+    #1 MyBus[0:15]  = mybus[15:0];
+    #10 MyBus[0]     = mybit_L;        // Zero the MSB.
+    
+    #10 MyBus[0]     = mybit_H;        // Zero the MSB.
+  //
+    #10 MyBus = 16'hxxxx; // Flag the end of this step in the lab.
+    #5  My48bits  = 'bz;
+    #5  My48bits  = 'bx;
+    #5  My48bits  = 'b0;
+    #5  My48bits  = 'b1;
+    #10 ;
+    #5  My48bits  = 1'bz;
+    #5  My48bits  = 1'bx;
+    #5  My48bits  = 1'b0;
+    #5  My48bits  = 1'b1;
+      
+    #2 $finish;
+    end
+  //
+ initial begin
+ $dumpfile("dump.vcd");
+ $dumpvars; //dump all variables in testbench & desig
+ end
+
+endmodule // Extend

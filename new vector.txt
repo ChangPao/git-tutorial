@@ -1,0 +1,94 @@
+// ===========================================================
+// Vector: Some simple vector operations.
+//
+// No module I/O ports.
+// ------------------------------------------------------------
+// 2007-09-18 jmw:  v. 2.0 Added My48bits exercise.
+// 2007-02-17 jmw:  v. 1.2 Minor comment change.
+// 2004-12-05 jmw:  v. 1.1 Fixed "array" to "vector".
+// 2004-11-27 jmw:  v. 1.0 implemented.
+// ===========================================================
+//
+`timescale 1ns/100ps
+
+module Vector;
+reg [0:15] MyBus;  // A vector of 16 bits of storage.
+wire[15:0] mybus;  // A 16-bit bus.
+wire       mybit_L, mybit_H;  // One bit bus.
+//
+reg[47:0]  My48bits;
+//
+assign mybus = 16'heeee; // Continuously drive the wire bus.
+assign mybit_L = 1'b0;     // Hold the wire at 0.
+assign mybit_H = 1'b1;     // Hold the wire at 1.
+//
+initial
+  begin
+  #10 MyBus        = 16'h3333;
+  #1 MyBus[0:2]   = mybus[10:8];  // MSB always on the left.
+  #10 MyBus        = mybus;
+  #1 MyBus[0:15]  = mybus[15:0];
+  #10 MyBus[0]     = mybit_L;        // Zero the MSB.
+    
+    #10 MyBus[0]     = mybit_H;        // Zero the MSB.
+  //
+  #10 MyBus = 16'hxxxx; // Flag the end of this step in the lab.
+  #5  My48bits  = 'bz;
+  #5  My48bits  = 'bx;
+  #5  My48bits  = 'b0;
+  #5  My48bits  = 'b1;
+  #10 ;
+  #5  My48bits  = 1'bz;
+  #5  My48bits  = 1'bx;
+  #5  My48bits  = 1'b0;
+  #5  My48bits  = 1'b1;
+    
+    //duplicate to another drive
+  #10 MyBus        = 16'h3333;
+  #1 MyBus[0:2]   = mybus[10:8];  // MSB always on the left.
+  #10 MyBus        = mybus;
+  #1 MyBus[0:15]  = mybus[15:0];
+  #10 MyBus[0]     = mybit_L;        // Zero the MSB.
+    
+    #10 MyBus[0]     = mybit_H;        // Zero the MSB.
+  //
+  #10 MyBus = 16'hxxxx; // Flag the end of this step in the lab.
+  #5  My48bits  = 'bz;
+  #5  My48bits  = 'bx;
+  #5  My48bits  = 'b0;
+  #5  My48bits  = 'b1;
+  #10 ;
+  #5  My48bits  = 1'bz;
+  #5  My48bits  = 1'bx;
+  #5  My48bits  = 1'b0;
+  #5  My48bits  = 1'b1;
+
+        //duplicate to another drive #2
+  #10 MyBus        = 16'h4444;
+    #1 MyBus[0:2]   = mybus[14:4];  // MSB always on the left.
+  #10 MyBus        = mybus;
+    #1 MyBus[0:15]  = mybus[10:6];
+  #10 MyBus[0]     = mybit_L;        // Zero the MSB.
+    
+    #10 MyBus[0]     = mybit_H;        // Zero the MSB.
+  //
+  #10 MyBus = 16'hxxxx; // Flag the end of this step in the lab.
+  #5  My48bits  = 'bz;
+  #5  My48bits  = 'bx;
+  #5  My48bits  = 'b0;
+  #5  My48bits  = 'b1;
+  #10 ;
+  #5  My48bits  = 1'bz;
+  #5  My48bits  = 1'bx;
+  #5  My48bits  = 1'b0;
+  #5  My48bits  = 1'b1;    
+
+  #5  $finish;
+  end
+
+ initial begin
+ $dumpfile("dump.vcd");
+ $dumpvars; //dump all variables in testbench & desig
+ end
+
+endmodule // Vector
