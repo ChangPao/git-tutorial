@@ -1,5 +1,9 @@
-// ===========================================================
-// Extend:   A simple design showing the effect of
+/* ===========================================================
+Author:  Chang Herr
+Date: 01-29-20
+Lab Assignment # 2
+
+Extend:   A simple design showing the effect of
 // logic value extension when assigning a bit to a vector.
 //
 // ANSI module header.
@@ -7,7 +11,7 @@
 // 2005-11-02 jmw:  v. 1.2 Moved reg dec inside module.
 // 2004-12-05 jmw:  v. 1.1 Fixed "array" to "vector".
 // 2004-11-30 jmw:  v. 1.0 implemented.
-// ============================================================
+// ============================================================*/
 `timescale 1ns/100ps
 //
 module Extend (output[47:0] My48bits, My48bit);
