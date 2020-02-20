@@ -1,0 +1,582 @@
+/******************************************************************
+Name: Chang Herr
+Student ID: 19544
+Course Term:  Spring 2020 – EE461 – Digital Design and HDL Verilog 
+Instructor: Mr. Yang, Alex
+
+Homework 1:  Due day - 1/25/20
+
+******************************************************************/
+
+//****************    Qestion #1   **************************
+
+// If a = 4’b1111 and b = -5’b00010, write the program to check what 
+// the values with 4 bits are when you want to calculate “a (+/-/*/%) b”. 
+// How about b = -5’b01xz ? 
+
+module _4bitValue();           
+  reg[4:0]    a;          
+  reg[4:0]    b;           
+  wire[4:0]   c0, c1, c2, c3; 
+ 
+	assign c0 = a + b; 
+  	assign c1 = a - b;
+  	assign c2 = a * b;
+  	assign c3 = a % b;
+ 
+    initial begin 
+		a = 4'b1111;                  
+		b = -5'b00010;       
+     
+      $display("c (+) = %b", c0); 
+
+      $display("c (-) = %b", c1); 
+      
+      $display("c (*) = %b", c2); 
+      
+      $display("c (%%) = %b", c3); 
+      
+	  #1 b = -5'b0x1z;    
+      
+      $display("Result after change b = -5'b0x1z;");
+
+      $display("c (+) = %b", c0); 
+
+      $display("c (-) = %b", c1); 
+      
+      $display("c (*) = %b", c2); 
+      
+      $display("c (%%) = %b", c3); 
+	end  
+endmodule 
+
+/*    Question #1 _4bitValue.v code result 
+ 
+[2020-02-15 21:15:14 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+c (+) = 01101
+c (-) = 10001
+c (*) = 00010
+c (%) = 01111
+Result after change b = -5'b0x1z;
+c (+) = xxxxx
+c (-) = xxxxx
+c (*) = xxxxx
+c (%) = xxxxx
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #2   **************************
+
+// When a = 2’b1z and b = 3’b11z, verify the values for (a>b), (a>=b), 
+// (a<=b) by a program. If a = 4’b01xz, check again. 
+
+module Operators();         
+  reg[3:0]	a;         
+  reg[3:0]  b;         
+  wire[3:0] c; 
+ 
+ initial begin                 
+   a = 2'b1z;                 
+   b = 3'b11z; 
+   
+   $display("comp > = %b", (a>b));  //What is value of (a>b)? 
+   $display("comp >= = %b", (a>=b));  //What is value of (a>=b)? 
+   $display("comp <= = %b", (a<=b));  //What is value of (a<=b)? 
+   
+   #1 a = 4'b01xz; 
+   $display("Result after change a = 4'b01xz");
+   $display("comp > = %b", (a>b));  //What is value of (a>b)? 
+   $display("comp >= = %b", (a>=b));  //What is value of (a>=b)? 
+   $display("comp <= = %b", (a<=b));  //What is value of (a<=b)? 
+   #1 $finish;         
+ end
+endmodule 
+
+/*    Question #2 Operators.v code result 
+
+[2020-02-15 21:31:45 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+comp > = x
+comp >= = x
+comp <= = x
+Result after change a = 4'b01xz
+comp > = x
+comp >= = x
+comp <= = x
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #3 and #4    **************************
+
+// Qestion #3
+// Write a program to see results for 4 questions on 
+// “Equality Operators” page in the handout. 
+
+// Question #4
+// Verify the results by a program for the following “A’s values”. )
+
+
+module E_Operators();             
+	reg[3:0] A_1x, A_1z;     
+	reg[3:0] A_2x, A_2z, A_2xz;
+	reg[3:0] A_3x, A_3z, A_3xz;
+  
+ 
+  initial begin                
+    A_1x = 1'bx;  
+	A_1z = 1'bz;
+	
+	A_2x = 2'b1z;
+	A_2z = 2'b0z;
+	A_2xz = 4'bxz;
+	
+	A_3x = 3'bxxx;
+	A_3z = 3'b1xx;
+    A_3xz = 3'b0xx; 	
+ 
+    $display("====  Answer to Question #4 !A ====");
+    
+    $display( "!A_1x = %b", (!A_1x));
+	$display( "!A_1z = %b\n", (!A_1z));
+		
+	$display( "!A_2x = %b", (!A_2x));
+    $display( "!A_2z = %b", (!A_2z));
+    $display( "!A_2xz = %b\n", (!A_2xz));
+	
+	$display( "!A_3x = %b", (!A_3x));
+    $display( "!A_3z = %b", (!A_3z));
+	$display( "!A_3xz = %b\n", (!A_3xz));
+        
+    #10  
+    
+    $display("====  Answer to Question #3 Equality Operators ====");
+    
+    $display( "A_1x = %b", (A_1z == A_1x));
+    $display( "A_1z = %b\n", (A_1x !== A_1z));
+		
+    $display( "A_2x = %b", (A_2z !== A_2x));
+    $display( "A_2z = %b", (A_2xz == A_2z));
+    $display( "A_2xz = %b\n", (A_2x !== A_2xz));
+	
+    $display( "A_3x = %b", (A_3z == A_3x));
+    $display( "A_3z = %b", (A_3xz !== A_3x));
+    $display( "A_3xz = %b\n", (A_3x == A_3xz));
+    
+    $finish;   
+    
+  end 
+endmodule 
+
+/*  Answer/Code Result to Both Question #3 and #4
+
+[2020-02-15 22:44:02 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+====  Answer to Question #4 !A ====
+!A_1x = x
+!A_1z = x
+
+!A_2x = 0
+!A_2z = x
+!A_2xz = x
+
+!A_3x = x
+!A_3z = 0
+!A_3xz = x
+
+====  Answer to Question #3 Equality Operators ====
+A_1x = x
+A_1z = 1
+
+A_2x = 1
+A_2z = x
+A_2xz = 1
+
+A_3x = x
+A_3z = 1
+A_3xz = x
+
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #5    ************************** 
+
+// Write a program to see what you will get for 1’bx && 2’bxz , 
+// 2’b0x || 1’bz , 2’b00 && 2’b1z and 2’b0z || 4’b01xz. 
+
+module Operators();             
+	reg[3:0] A_1x, A_1z;   
+  	reg[3:0] A_2x, A_2z;   
+  	reg[3:0] A_3x, A_3z;  
+  	reg[3:0] A_4x, A_4z;   
+ 
+ 	initial begin  
+    
+    A_1x = 1'bx;  
+	A_1z = 2'bxz;
+    $display( "A_1x = %b", (A_1z && A_1x)); 
+        
+    A_2x = 2'b0x;  
+	A_2z = 1'bz;
+    $display( "A_2x = %b", (A_2x || A_2z)); 
+    
+    A_3x = 2'b00;  
+	A_3z = 2'b1z;
+    $display( "A_3x = %b", (A_3x && A_3z));
+    		
+    A_4x = 2'b0z;  
+	A_4z = 4'b01xz;
+    
+    $display( "A_4x = %b", (A_4x || A_4z));
+    
+    #1 $finish;   
+    
+  end 
+endmodule 
+
+
+/*  Result to Question #5
+
+[2020-02-15 23:04:58 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+A_1x = x
+A_2x = x
+A_3x = 0
+A_4x = 1
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #6    ************************** 
+
+// What are the results in the following operations and 
+// verify them by Verilog code? 
+
+module Operators();             
+  reg[3:0] A, B, C, D;
+   
+ 	initial begin  
+		A = 4'b01xz;
+        B = 4'bxz01;
+        C = 4'b01xz;
+        D = 2'bZ1;
+
+      $display( "~4'b01xz = %b", (~A));
+      $display( "4'b01xz & 4'bxz01 = %b", (A & B));
+      $display( "4'b01xz | 4'bxz01 = %b", (A | B));
+      $display( "4'b01xz ^ 4'bxz01 = %b", (A ^ B));
+      $display( "4'b01xz ^~ 4'bxz01 = %b", (A ^~ B));
+      $display( "4'b01xz ^~ 4'bZ1 = %b", (A ^~ D));
+      $display( "4'b01xz ^~ 2'bZ1 = %b", (A ^~ D));
+    
+    #1 $finish;   
+    
+  end 
+endmodule 
+
+/*  Result to Question #6
+
+[2020-02-15 23:32:56 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+~4'b01xz = 10xx
+4'b01xz & 4'bxz01 = 0x0x
+4'b01xz | 4'bxz01 = x1x1
+4'b01xz ^ 4'bxz01 = xxxx
+4'b01xz ^~ 4'bxz01 = xxxx
+4'b01xz ^~ 4'bZ1 = 10xx
+4'b01xz ^~ 2'bZ1 = 10xx
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #7    ************************** 
+
+// Question #7. What are you going to get for “& 4’b01xz” , “~| 4’b01xz” , 
+// “^ 4’b01xz” and “~^ 4’b01xz”. 
+
+// Question #8. What are the new values after bit shifting for “4'b01xz << 1'bz” 
+// and “4'b01xz >>2'bxx” ? 
+
+module Operators();             
+  reg[3:0] A, B, C, D, E, F;
+   
+ 	initial begin  
+		A = 4'b01xz;
+        B = 4'bxz01;
+        C = 4'b01xz;
+        D = 2'bZ1;
+      
+      	E = 1'bz;
+      	F = 2'bxx;
+
+      $display( "~4'b01xz = %b", (~A));
+      $display( "4'b01xz & 4'bxz01 = %b", (A & B));
+      $display( "4'b01xz | 4'bxz01 = %b", (A | B));
+      $display( "4'b01xz ^ 4'bxz01 = %b", (A ^ B));
+      $display( "4'b01xz ^~ 4'bxz01 = %b", (A ^~ B));
+      $display( "4'b01xz ^~ 4'bZ1 = %b", (A ^~ D));
+      $display( "4'b01xz ^~ 2'bZ1 = %b", (A ^~ D));
+      
+      $display("\n====  Answer to Question #7 Operators ====");
+    
+      $display( "& 4'b01xz = %b", (&A));
+      $display( "~| 4'b01xz = %b", (~|A));
+      $display( "^ 4'b01xz = %b", (^A));
+      $display( "~^ 4'b01xz = %b", (~^A));
+      
+    
+      $display("\n====  Answer to Question #8 Operators ====");
+      
+      $display( "4'b01xz << 1'bz = %b", (A << E));
+      $display( "4'b01xz >> 2'bxx = %b\n", (A >> F));
+      
+      
+      
+        #1 $finish; 
+  end 
+endmodule 
+
+/*  Result to Question #7 and #8
+
+[2020-02-15 23:43:46 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+~4'b01xz = 10xx
+4'b01xz & 4'bxz01 = 0x0x
+4'b01xz | 4'bxz01 = x1x1
+4'b01xz ^ 4'bxz01 = xxxx
+4'b01xz ^~ 4'bxz01 = xxxx
+4'b01xz ^~ 4'bZ1 = 10xx
+4'b01xz ^~ 2'bZ1 = 10xx
+
+====  Answer to Question #7 Operators ====
+& 4'b01xz = 0
+~| 4'b01xz = 0
+^ 4'b01xz = x
+~^ 4'b01xz = x
+
+====  Answer to Question #8 Operators ====
+4'b01xz << 1'bz = xxxx
+4'b01xz >> 2'bxx = xxxx
+
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #9    ************************** 
+
+// In this expression A = B ? 4’b1100 : 5’b11ZX0 and if B = 2’b1x, 
+// What is A(4-bit number)? How about B= 3’b1xz? Write a program to verify your answers. 
+
+module Operators();         
+  reg[3:0]	A;         
+  reg[3:0]  B;         
+ 
+ initial begin     
+   
+   A = 4'b1100;                 
+   B = 5'b11ZX0;
+   $display( "(A = B) = %b", (A ~^ B));
+   
+   #1 B = 2'b1x;
+   $display("Result after change B = 2'b1x");
+   $display( "(A = B) = %b", (A ^ B));
+   
+   #1 B = 3'b1xz;
+   $display("Result after change a = 3'b1xz");
+   $display( "(A = B) = %b", (A ^~ B));
+   
+   #1 $finish;         
+ end
+endmodule 
+
+/*  Result to Question #9
+
+[2020-02-16 00:49:44 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+(A = B) = 1xx1
+Result after change B = 2'b1x
+(A = B) = 111x
+Result after change a = 3'b1xz
+(A = B) = 01xx
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+
+// The A(4-bit number)? is 1xx1, 111x, and 01xx.
+*/
+
+
+
+//****************    Qestion #10    ************************** 
+
+// Complete the following Verilog modules and display the output strength. Explain why. 
+
+
+module testStrength1(); 
+	reg a, b; 
+  	reg y;  // Data type declaration for a, b and y 
+	
+	initial begin 
+      y = 7'b01;
+      a = 1'b1; 
+      b = 1'b1; 
+      $display("y = %v,  a = %v,  b = %v", y, a, b); 
+	end 
+endmodule 
+
+module testStrength2(); 
+	reg i1, i2, ctrl;
+  	wire y; // Data type declaration for a, b and y 
+
+	bufif0 (strong1, weak0) g1 (y, i1, ctrl); 
+	bufif0 (strong1, weak0) g2 (y, i2, ctrl); 
+	
+	initial begin 
+		ctrl = 1'bz; 
+		i1 = 0; 
+		i2 = 1;
+      
+      $display("y = %v,  a = %v,  b = %v", y, i1, i2); 
+	end 
+endmodule  
+
+
+/*  Result to Question #10.  
+
+[2020-02-18 23:19:07 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+y = St1,  a = St1,  b = St1
+y = 36X,  a = St0,  b = St1
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+
+
+//****************    Qestion #11   ************************** 
+
+// Design Verilog program for 4 to 1 mux in gate level and write the testbench to verify. 
+
+
+// ************ fourOneMux design  **************
+
+module fourOneMux(i0_i, i1_i, i2_i, i3_i, s0_i, s1_i, out_o );
+	input i0_i, i1_i, i2_i, i3_i, s0_i, s1_i;
+	output out_o;
+	
+	wire y0, y1, y2, y3, bufs0, bufs1;  // internal wires
+	
+	and u_y0(y0, i0_i, bufs1, bufs0);  // fourOneMux
+	and u_y1(y1, i1_i, bufs1, s0_i);
+	and u_y2(y2, i2_i, s1_i, bufs0);
+	and u_y3(y3, i3_i, s1_i, s0_i);
+	or uOr(out_o, y0, y1, y2, y3);  // output
+	
+endmodule
+
+
+// ************ fourOneMux Test Bench  **************
+
+`include "fourOneMux.v"  // inlude fourOneMux file
+
+module fourOneMuxTB();
+	reg i0_i, i1_i, i2_i, i3_i, s0_i, s1_i;
+	wire out_o;
+	
+ 	wire y0, y1, y2, y3, bufs0, bufs1;  // internal wires
+
+  	and u_y0(y0, i0_i, bufs1, bufs0);  // fourOneMux
+	and u_y1(y1, i1_i, bufs1, s0_i);
+	and u_y2(y2, i2_i, s1_i, bufs0);
+	and u_y3(y3, i3_i, s1_i, s0_i);
+  or uOr(out_o, y0, y1, y2, y3);  
+  
+	initial begin
+      
+        $monitor("out_o = %d", out_o);
+	
+		#10 i0_i = 0;
+		#10 i1_i = 1;
+		#10 i2_i = 0;
+		#10 i3_i = 1;
+		#10 s0_i = 0;
+		#10 s1_i = 1;
+	
+		#10 i0_i = 1;
+		#10 i1_i = 0;
+		#10 i2_i = 1;
+		#10 i3_i = 0;
+		#10 s0_i = 1;
+		#10 s1_i = 0;
+      
+      	#5 $finish;
+
+	end
+  
+	initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+  	end
+  
+endmodule 
+
+/*  Result to Question #11.  
+
+[2020-02-19 03:07:44 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+VCD info: dumpfile dump.vcd opened for output.
+out_o = z
+out_o = x
+out_o = 0
+out_o = x
+Finding VCD file...
+./dump.vcd
+[2020-02-19 03:07:46 EST] Opening EPWave...
+Done
+*/
+
+//****************    Qestion #12   ************************** 
+
+//Write nor gate Verilog module using switch devices and testbench to verify it.
+
+module norGate_S(input a, b, output Out);
+  	reg a, b;
+  	wire Out;
+	supply1 vdd;
+  	supply0 vss;
+
+	wire fo1;
+
+  	pmos u1Pmos(fo1, vdd, a);
+  	pmos u2Pmos(Out, fo1, b);
+	
+ 	nmos u1Nmos(Out, vss, a);
+  	nmos u2Nmos(Out, vss, b);
+
+	initial begin
+		
+		$monitor("Output = %d", Out);
+	
+		#1 a = 0;
+		#1 b = 1;
+		
+		#1 a = 1;
+		#1 b = 0;
+		     
+      	#2 $finish;
+	end 
+  
+	initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+  	end
+  
+endmodule 
+
+
+
+
+
+
+
