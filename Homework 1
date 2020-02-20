@@ -1,0 +1,778 @@
+/******************************************************************
+Name: Chang Herr
+Student ID: 19544
+Course Term:  Spring 2020 – EE461 – Digital Design and HDL Verilog 
+Instructor: Mr. Yang, Alex
+
+Homework 1:  Due day - 1/25/20
+
+******************************************************************/
+
+//****************    Qestion #1   **************************
+
+//Write the program to verify whether white space “Carriage Return” and “Formfeed”
+//in "helloWorld.v” work or not, and show the result.
+
+
+module helloWorld();
+  
+  initial begin
+    $display("Hello World");  	// original hello world code
+    #10 $finish;
+  end
+  
+  reg [8*21:0] string;
+  
+  initial begin   				//whitespace verify
+    string = "HelloWorld";
+    $display("%s \n", string);	//newline
+    $display("%0s \n", string);	//newline with 0 to start at t=0
+    
+    $display("%s \r", string);	//carriage return
+    $display("%s \f", string);	//formfeed
+  end
+  
+  initial begin
+ 	$dumpfile("dump.vcd");
+	$dumpvars; 
+  end
+endmodule 
+
+/*  Question #1 code result      
+
+[2020-02-12 23:17:36 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+Hello World
+            HelloWorld 
+
+HelloWorld 
+
+            HelloWorld r
+            HelloWorld f
+VCD info: dumpfile dump.vcd opened for output.
+Finding VCD file...
+./dump.vcd
+[2020-02-12 23:17:36 EST] Opening EPWave...
+Done
+*/
+
+
+
+//****************    Qestion #2   **************************
+
+//If a variable name is defined using a keyword, write a code snippet to 
+//look at what will happen and show error/warning information.
+
+
+module snippet();
+  reg x = 2, y = 0, temp = 4;
+  
+  initial begin
+    #1 	temp = x;
+	#1	x = y;
+	#4	y = temp;
+    $display("Time = %d", y);
+  end
+  
+  initial begin
+ 	$dumpfile("dump.vcd");
+	$dumpvars; 
+  end
+endmodule
+
+
+/*  Question #2 code result
+
+[2020-02-12 22:57:52 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+VCD info: dumpfile dump.vcd opened for output.
+Time = 0
+Finding VCD file...
+./dump.vcd
+[2020-02-12 22:57:53 EST] Opening EPWave...
+Done
+*/
+
+
+
+//****************    Qestion #3   **************************
+
+//When a module name is &$$abc_123, how to make it pass compilation by writing a
+//program to verify? 
+
+
+module &$$abc_123();
+  reg a = 2, b = 0, temp = 4;
+  
+  initial begin
+    #1 	temp = a;
+	#1	a = b;
+	#4	b = temp;
+    $display("Time = %d", b);
+  end
+endmodule
+
+/*  Question #3 code result
+
+[2020-02-12 23:18:51 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+testbench.sv:1: syntax error
+I give up.
+Exit code expected: 0, received: 1
+Done
+*/
+
+// Change module name to abc_123(); code is working
+module abc_123();
+  reg a = 2, b = 0, temp = 4;
+  
+  initial begin
+    #1 	temp = a;
+	#1	a = b;
+	#4	b = temp;
+    $display("Time = %d", b);
+  end
+endmodule
+
+/* Question #3 Working result
+
+[2020-02-12 23:21:17 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+Time = 0
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+
+//****************    Qestion #4   **************************
+
+// Define a variable type “tri”, and make two devices in the same 
+// value (e.g. 1, 1) and different value(e.g. z, x) to drive it, 
+// what do you get and show running results? Take an example on 
+// the handout as reference.
+
+module Tri; 
+   	tri bus;
+    reg Aout, Bout; 
+	reg x, z;
+
+	assign bus = x ? Aout: 8'hzz;
+	assign bus = z ? Bout: 8'hzz;
+	
+	initial begin
+		$monitor ("Time = %g, bus = %b", $time, bus);
+		Aout = 1;
+		Bout = 1;
+		x = 0;
+		z = 0;
+		#1
+		Aout = 0;
+		Bout = 0;
+		x = 1;
+		z = 1;
+		#1
+		Aout = 1;
+		Bout = 1;
+		x = 0;
+		z = 0;
+		#1
+		Aout = 0;
+		Bout = 0;
+		x = 1;
+		z = 1;
+    end 
+  
+	initial begin
+		$dumpfile("dump.vcd");
+		$dumpvars; 
+	end
+endmodule 
+	
+/* Question #4 Working result
+
+[2020-02-13 03:25:16 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+VCD info: dumpfile dump.vcd opened for output.
+Time = 0, bus = z
+Time = 1, bus = 0
+Time = 2, bus = z
+Time = 3, bus = 0
+Finding VCD file...
+./dump.vcd
+[2020-02-13 03:25:17 EST] Opening EPWave...
+Done
+*/
+
+
+//****************    Qestion #5   **************************
+
+// Retype “wor/trior” and “wand/triand” test programs on the handout 
+// and assign all 16- combination values to them. Compare the results 
+// with the values in truth table. And show results. 
+
+// Question $5 Wor/Trior code
+
+module WorTrior();   
+  	wor Y;   
+  	reg A, B;  
+ 
+ 	assign Y = A;   
+  	assign Y = B;   
+  	initial begin   //Non-synthesizable block, only for simulation   
+    	$monitor("%g Y = %b A = %b B = %b", $time, Y, A, B);        	//%g – General format floating point number   
+    	#1 A = 0;    
+    	#1 B = 0;    
+    	#1 A = 1;    
+   	 	#1 A = 0;    
+    	#1 B = 1;    
+    	#1 A = 1;    
+    	#1 A = 0;    
+    	#1 $finish;   
+  	end
+  
+   	initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+  	end
+endmodule
+
+/* Wor/Trior code result
+
+[2020-02-13 03:58:58 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+VCD info: dumpfile dump.vcd opened for output.
+0 Y = x A = x B = x
+1 Y = x A = 0 B = x
+2 Y = 0 A = 0 B = 0
+3 Y = 1 A = 1 B = 0
+4 Y = 0 A = 0 B = 0
+5 Y = 1 A = 0 B = 1
+6 Y = 1 A = 1 B = 1
+7 Y = 1 A = 0 B = 1
+Finding VCD file...
+./dump.vcd
+[2020-02-13 03:58:59 EST] Opening EPWave...
+Done
+*/
+
+// Question #5  WandTriand code
+module WandTriand();   
+  	wand X;   
+  	reg A, B;  
+ 
+	assign X = A;   
+  	assign X = B;     
+  	initial begin    
+    	$monitor("%g X = %b A = %b B = %b", $time, X, A, B);    
+   	 	#1 A = 0;    
+    	#1 B = 0;    
+    	#1 A = 1;    
+    	#1 A = 0;    
+    	#1 B = 1;    
+    	#1 A = 1;    
+    	#1 A = 0;    
+    	#1 $finish;   
+    end  
+	
+	initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+  	end
+endmodule 
+
+/* Wand/Triand code result
+
+[2020-02-13 03:54:41 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+VCD info: dumpfile dump.vcd opened for output.
+0 X = x A = x B = x
+1 X = 0 A = 0 B = x
+2 X = 0 A = 0 B = 0
+3 X = 0 A = 1 B = 0
+4 X = 0 A = 0 B = 0
+5 X = 0 A = 0 B = 1
+6 X = 1 A = 1 B = 1
+7 X = 0 A = 0 B = 1
+Finding VCD file...
+./dump.vcd
+[2020-02-13 03:54:42 EST] Opening EPWave...
+Done
+*/
+
+//****************    Qestion #6   **************************
+
+// Generate variable type “tri0/tri1”, and assign 4 different values 
+// (0, 1, X, Z) to observe what you are going to get. 
+
+module Tri0_Tril();
+  
+  wire  w1, w2, w3, w4;   
+  tri0  t01, t02, t03, t04;   
+  tri1  t11, t12, t13, t14;  
+  
+  assign w1 = 0;   
+  assign w2 = 1;
+  assign w3 = 1'bx;
+  assign w4 = 1'bz;
+  
+  assign t01 = 0;   
+  assign t02 = 1;  
+  assign t03 = 1'bx;  
+  assign t04 = 1'bz; 
+  
+  assign t11 = 1;   
+  assign t12 = 1'bx;  
+  assign t13 = 0;  
+  assign t14 = 1'bz;  
+     
+  initial begin    
+    #1; 
+    $display(w1, w2, w3, w4);         
+    $display(t01, t02, t03, t04);          
+    $display(t11, t12, t13, t14);   
+  end  
+  
+ /* initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+  end*/
+endmodule  
+
+/* Tri0_Tril code result
+
+[2020-02-14 00:03:29 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+01xz
+01x0
+1xx1
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+
+//****************    Qestion #7   **************************
+
+// Retype “testTrireg” module example code on the “WK#2” handout 
+// and provide the results. 
+
+module testTrireg ();    
+  
+	trireg[7:0] data;    
+	reg[1:0] 	flag;        
+	assign 		data = (flag==1)? 10 :
+					   (flag==0)? 8’bzz:                         					  
+					   (flag==3)? 30:255;    
+	initial begin     
+		flag = 1;    
+		#200 flag=0;    
+		#200 flag=3;    
+		#200 flag=0;    
+		#200 flag=2;    
+		#200 flag=0;          
+		$monitor(“Time=%g, data=%d”, $time, data);     
+		#10  $finish;   
+	end   
+  
+	initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+	end	
+endmodule   
+
+/*  testTrireg code result - doesn't work 
+
+[2020-02-14 00:23:01 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+testbench.sv:3: sorry: trireg nets not supported.
+testbench.sv:6: error: unmatched character (hex ?)
+testbench.sv:6: error: unmatched character (hex ?)
+testbench.sv:6: error: unmatched character (hex ?)
+testbench.sv:6: syntax error
+testbench.sv:5: error: syntax error in continuous assignment
+testbench.sv:e: error: unmatched character (hex ?)
+testbench.sv:e: error: unmatched character (hex ?)
+testbench.sv:e: error: unmatched character (hex ?)
+testbench.sv:e: syntax error
+testbench.sv:e: error: unmatched character (hex ?)
+testbench.sv:e: error: unmatched character (hex ?)
+testbench.sv:e: error: unmatched character (hex ?)
+testbench.sv:e: error: malformed statement
+Exit code expected: 0, received: 1
+Done
+*/
+
+
+//****************    Qestion #8   **************************
+
+// Retype “testInteger” module example code on the “WK#2” 
+// handout and give the results. 
+
+module testInteger;  
+  
+  wire pwrGood, pwrOn, pwrStable;  
+  integer i;    
+  time t;    			// 64-bit, unsigned, behaves like a 64-bit reg.  
+  real r;    			// Real data type of implementation defined size.      
+  
+  assign pwrStable = 1'b1;   
+  assign pwrOn = 1; 			// 1 or 1'b1  
+  assign pwrGood = pwrOn & pwrStable;  
+  
+  initial begin               
+  								//integer/time/real must be in initial or 
+    							//always block to be assigned to a value   
+    i = 123.456;    			// There must be a digit on either side   
+    r = 123456e-3; 	 			// of the decimal point if it is present.   
+    t = 123456e-3;  			// Time is rounded to 1 second by default.  
+    
+    $display("i=%0g\n",i,
+             "t=%6.2f\n", t,
+             "r=%f\n",r); 		//%6.2f: at leas t 6 digits  
+    #2;
+    $display("TIME=%0d\n", $time,
+             "ON= %d\n", pwrOn,
+             "STABLE= %d\n", pwrStable, 
+             "GOOD= %d\n", pwrGood);   
+                
+     $finish;       
+	end 
+endmodule 
+
+/*  testInteger code result - doesn't work 
+
+[2020-02-14 01:55:47 EST[2020-02-14 02:01:57 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+i=123
+t=123.00
+r=123.456000
+
+TIME= 2
+ON= 1
+STABLE= 1
+GOOD= 1
+
+Finding VCD file...
+
+*/
+
+//****************    Qestion #9  **************************
+
+// Create a “time” variable type and assign it values from $stime 
+// and $realtime, what will you get? 
+
+module testTime();         
+	
+  time t; // 64-bit, unsigned, behaves like a 64-bit reg.
+  
+	initial begin                      
+		t = $time;   
+      	#1 t=$time;                 
+		#1 t=$time; 
+      	#10;
+	end        
+	
+	initial begin                 
+		$monitor("t=%6.2f",t);                 
+      	#2 $display("TIME= %0d",$time);     
+      
+      $monitor("t=%6.2f",t);                 
+      	#2 $display("TIME= %0d",$time);  
+      
+      	$monitor("t=%6.2f",t);                 
+      	#2 $display("TIME= %0d",$time);  
+      
+        $monitor("t=%6.2f",t);                 
+      	#2 $display("TIME= %0d",$time);
+      
+      	$monitor("t=%6.2f",t);                 
+      	#2 $display("TIME= %0d",$time);
+      
+        $monitoritor("t=%6.2f",t); 
+   	end 
+  endmodule
+
+/*   testTime  code result
+
+[2020-02-14 02:23:14 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+t=  0.00
+t=  1.00
+TIME= 2
+t=  2.00
+TIME= 4
+t=  2.00
+TIME= 6
+t=  2.00
+TIME= 8
+t=  2.00
+TIME= 10
+t=  2.00
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #10  **************************
+		
+// Define a time scale like `timescale 10ns/100ps, if a delay is #2.71828, 
+// calculate the real delay and compare what the difference between $display 
+// result in $time and your calculation is. 
+
+/*   Question #10 Result
+     
+		Given: 	`timescale = 10ns/100ps
+				delay = #2.71828
+						
+		Answer: 2.71828x10ns 	= 27.18ns   
+								= rounded to 27ns is delay time.
+*/
+
+
+//****************    Qestion #11  **************************
+
+// Retype “signedNumber” module, and observe the running results. 
+
+module signedNumber;   
+  reg [31:0]  a;     
+  
+  initial begin    
+    a = 14'h1234;    
+    $display ("Current Value of a = %h", a);    
+    
+    a = -14'h1234;    
+    $display ("Current Value of a = %h", a); //What is result?   
+    
+    a = 32'hDEAD_BEEF;    
+    $display ("Current Value of a = %h", a);    
+    
+    a = -32'hDEAD_BEEF;    
+    $display ("Current Value of a = %h", a); //What is result?   
+    
+    #10 $finish;   
+  end 
+endmodule  
+
+/*  signedNumber code result
+
+[2020-02-14 03:09:08 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+Current Value of a = 00001234
+Current Value of a = ffffedcc
+Current Value of a = deadbeef
+Current Value of a = 21524111
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #12  **************************
+
+// Take “helloWorld.v” as an example, write program to 
+// print double quote, percent character and @ character 
+// in ASCII code number. 
+
+module helloWorld();
+  
+  initial begin
+    $display("Hello World");  	// original hello world code
+    #10 $finish;
+  end
+  
+  reg [8*21:0] string;
+  
+  initial begin   				
+    $display("\n====== ANSWER TO QUUESTION 12  ======== \n");
+    $display("\" \n");	//print double qdoute 
+    $display("%% \n");	//pirnt percent character
+    $display("\@ \n");	//print @ characte
+  end
+  
+endmodule 
+
+/* Answer to question # 12
+
+[2020-02-14 03:29:51 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+Hello World
+
+====== ANSWER TO QUUESTION 12  ======== 
+
+" 
+
+% 
+
+@ 
+
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+//****************    Qestion #13  **************************
+
+// Write a program to display values of different variables 
+// that could cover format like %b, %c, %d, %0d, %e, %f, 
+// %6.2f, %g, %h, %o, %s and %t, %00t. 
+
+module printValue();
+  
+  reg pi = 3.14159;
+  
+  initial begin
+    #1;
+    $display("%b \n", pi);
+    $display("%c \n", pi);
+    $display("%d \n", pi);
+    $display("%0d \n", pi);
+    $display("%e \n", pi);
+    $display("%f \n", pi);
+    $display("%6.2f \n", pi);
+    $display("%g \n", pi);
+    $display("%h \n", pi);
+    $display("%o \n", pi);
+    $display("%s \n", pi);
+    $display("%t \n", pi);
+    $display("%00t \n", pi);
+    #10 $finish;
+  end  
+endmodule 
+
+/* Answer to question # 13
+[2020-02-14 03:50:07 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+1 
+
+ 
+
+1 
+
+1 
+
+1.000000e+00 
+
+1.000000 
+
+  1.00 
+
+1 
+
+1 
+
+1 
+
+ 
+
+                   1 
+
+1 
+
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
+
+
+//****************    Qestion #14  **************************
+
+// Compare $display, $write and $monitor system tasks by 
+// a program, and give the running result.
+
+module printValue();
+  
+  reg pi = 3.14159;
+  
+  initial begin
+    $display("\n\n=============== display ================= \n");
+    $display("%b \n", pi);
+    $display("%c \n", pi);
+    $display("%d \n", pi);
+    $display("%0d \n", pi);
+    $display("%e \n", pi);
+    $display("%f \n", pi);
+    $display("%6.2f \n", pi);
+    $display("%g \n", pi);
+    $display("%h \n", pi);
+    $display("%o \n", pi);
+    $display("%s \n", pi);
+    $display("%t \n", pi);
+    $display("%00t \n", pi);
+    
+    $display("=============== write ================= \n");
+    
+    $write("%b \n", pi);
+    $write("%c \n", pi);
+    $write("%d \n", pi);
+    $write("%0d \n", pi);
+    $write("%e \n", pi);
+    $write("%f \n", pi);
+    $write("%6.2f \n", pi);
+    $write("%g \n", pi);
+    $write("%h \n", pi);
+    $write("%o \n", pi);
+    $write("%s \n", pi);
+    $write("%t \n", pi);
+    $write("%00t \n", pi);
+    
+    $display("=============== monitor  ================ \n");
+    
+    $monitor("%b \n", pi);
+    $monitor("%c \n", pi);
+    $monitor("%d \n", pi);
+    $monitor("%0d \n", pi);
+    $monitor("%e \n", pi);
+    $monitor("%f \n", pi);
+    $monitor("%6.2f \n", pi);
+    $monitor("%g \n", pi);
+    $monitor("%h \n", pi);
+    $monitor("%o \n", pi);
+    $monitor("%s \n", pi);
+    $monitor("%t \n", pi);
+    $monitor("%00t \n", pi);
+    
+    #10 $finish;
+  end  
+endmodule 
+
+/*
+[2020-02-14 03:57:04 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+
+
+=============== display ================= 
+
+1 
+
+ 
+
+1 
+
+1 
+
+1.000000e+00 
+
+1.000000 
+
+  1.00 
+
+1 
+
+1 
+
+1 
+
+ 
+
+                   1 
+
+1 
+
+=============== write ================= 
+
+1 
+ 
+1 
+1 
+1.000000e+00 
+1.000000 
+  1.00 
+1 
+1 
+1 
+ 
+                   1 
+1 
+=============== monitor  ================ 
+
+1 
+
+Finding VCD file...
+No *.vcd file found. EPWave will not open. Did you use '$dumpfile("dump.vcd"); $dumpvars;'?
+Done
+*/
