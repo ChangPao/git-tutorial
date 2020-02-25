@@ -1,0 +1,129 @@
+/*******************************************************************************
+
+Author/Name:		Chang Herr
+Available Date:		1/28/2020 6:15:00 PM
+Due Date:  			2/5/2020 5:45:00 PM (Past Due) Allow Late Submission 
+Project Description:  Complete Lab3 assignment in Lab manual 
+- Write a testbench to verify the given verilog RTL module without logic synthesis step
+- Push source code onto Github
+- Submit file with simuation waveform screenshot on student portal & Github link URL 
+
+********************************************************************************/
+
+
+//*************** Top Module  ************************
+`timescale 10ns/100ps 
+
+module ParamCounterTop(Clk, CountEna, CountRst, OutEna, CountOut1, inBus, conEna, outBus);
+	input Clk, CountEna, CountRst, OutEna, inBus, conEna;
+	output CountOut1, outBus;
+	
+  	reg Clk, CountEna, CountRst, OutEna, inBus, conEna;
+  	wire CountOut1, outBus;
+  	wire Xfer;
+    parameter RowSize = 8;
+  	reg[7:0]  ClkIn, ClkOut;
+  
+	Counter u1(
+				.c_countOut(Xfer), 
+				.c_clk(Clk), 
+				.c_countEna(CountEna), 
+      			.c_countRst(CountRst)
+				);
+	Converter u2(
+				.outBus(CountOut1), 
+				.inBus(Xfer), 
+				.convEna(OutEna)
+    			);
+  
+  	initial begin
+	
+		#10 CountEna = 1'b0;
+		#20 OutEna = 1'b1;
+		#40 CountRst = 1'b0;
+		#30 OutEna = 1'b1;
+		
+		#10 CountEna = 1'b0;
+		#20 OutEna = 1'b1;
+		#40 CountRst = 1'b0;
+		#30 OutEna = 1'b1;
+      
+      	#5 $finish;  
+    end 
+  
+  	always @(Clk) begin
+      	if(Clk == 0)
+        	ClkOut <= 0;
+      	else if(Clk == 1)
+      		ClkOut[RowSize-1:0] <= ClkIn[RowSize-1:0];
+		end
+  
+  	initial begin        
+     $dumpfile("dump.vcd"); 
+     $dumpvars; 							     
+   	end   
+  
+endmodule  // end top module
+
+
+//************ Counter Module  *********************
+
+module Counter(c_clk, c_countEna, c_countRst, c_countOut);		
+	input 	c_clk, c_countEna, c_countRst;
+	output 	c_countOut;
+	
+	wire 	c_clk, c_countEna, c_countRst;
+	reg	c_countOut;
+
+  always @ (posedge c_clk) 
+  	begin : Counter1
+      if (c_countRst == 1'b1) begin
+        	c_countOut <= #1 1'b0;
+            end
+        else if (c_countOut == 1'b1) begin
+        	c_countOut <= #1 c_countOut + 1;
+  			end
+        end
+        
+endmodule  // end counter module
+
+
+//************ Converter Module  ********************
+    
+module Converter(inBus, convEna, outBus);			
+	input 	inBus, convEna;
+	output 	outBus;
+	
+	wire 	inBus, convEna;
+	reg 	outBus;
+  
+  	always @(posedge inBus or negedge convEna) 
+		begin: Converter1
+    	if ((inBus == 0)) begin
+        	outBus <= 0;
+    		end
+   	 	else begin
+        	if (convEna) begin
+            outBus <= ((outBus + 1) % 256);
+        	end
+    	end
+	end
+
+endmodule  // end converter module */
+
+
+//   Program result - could not be displayed.  They are too many errors,
+//   unable to debug to resolve it.  
+
+/******    Display below is errors  *************
+[2020-02-25 00:44:19 EST] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+testbench.sv:8: error: Port Clk of module ParamCounterTop is declared as input and as a reg type.
+testbench.sv:8: error: Port CountEna of module ParamCounterTop is declared as input and as a reg type.
+testbench.sv:8: error: Port CountRst of module ParamCounterTop is declared as input and as a reg type.
+testbench.sv:8: error: Port OutEna of module ParamCounterTop is declared as input and as a reg type.
+testbench.sv:8: error: Port conEna of module ParamCounterTop is declared as input and as a reg type.
+testbench.sv:8: error: Port inBus of module ParamCounterTop is declared as input and as a reg type.
+6 error(s) during elaboration.
+Exit code expected: 0, received: 1
+Done
+*/
