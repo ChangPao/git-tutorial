@@ -1,0 +1,102 @@
+//*************** Top Module  ************************
+`timescale 10ns/100ps 
+
+module ParamCounterTop(Clk, CountEna, CountRst, OutEna, CountOut1, inBus, conEna, outBus);
+	input Clk, CountEna, CountRst, OutEna, inBus, conEna;
+	output CountOut1, outBus;
+	
+  	reg Clk, CountEna, CountRst, OutEna, inBus, conEna;
+  	wire CountOut1, outBus;
+  	wire Xfer;
+    parameter RowSize = 8;
+  	reg[7:0]  ClkIn, ClkOut;
+  
+	Counter u1(
+				.c_countOut(Xfer), 
+				.c_clk(Clk), 
+				.c_countEna(CountEna), 
+      			.c_countRst(CountRst)
+				);
+	Converter u2(
+				.outBus(CountOut1), 
+				.inBus(Xfer), 
+				.convEna(OutEna)
+    			);
+  
+  	initial begin
+    //    $monitor("out_o = %d", out_o);
+	
+		#10 CountEna = 1'b0;
+		#20 OutEna = 1'b1;
+		#40 CountRst = 1'b0;
+		#30 OutEna = 1'b1;
+		
+		#10 CountEna = 1'b0;
+		#20 OutEna = 1'b1;
+		#40 CountRst = 1'b0;
+		#30 OutEna = 1'b1;
+      
+      	#5 $finish;  
+    end 
+  
+  //	reg Clk;
+
+  	always @(Clk) begin
+      	if(Clk == 0)
+        	ClkOut <= 0;
+      	else if(Clk == 1)
+      		ClkOut[RowSize-1:0] <= ClkIn[RowSize-1:0];
+		end
+  
+  	initial begin        
+     $dumpfile("dump.vcd"); 
+     $dumpvars; 							     
+   	end   
+  
+endmodule  // end top module
+
+
+//************ Counter Module  *********************
+
+module Counter(c_clk, c_countEna, c_countRst, c_countOut);		
+	input 	c_clk, c_countEna, c_countRst;
+	output 	c_countOut;
+	
+	wire 	c_clk, c_countEna, c_countRst;
+	reg	c_countOut;
+
+  always @ (posedge c_clk) 
+  	begin : Counter1
+      if (c_countRst == 1'b1) begin
+        	c_countOut <= #1 1'b0;
+            end
+        else if (c_countOut == 1'b1) begin
+        	c_countOut <= #1 c_countOut + 1;
+  			end
+        end
+        
+endmodule  // end counter module
+
+
+//************ Converter Module  ********************
+    
+module Converter(inBus, convEna, outBus);			
+	input 	inBus, convEna;
+	output 	outBus;
+	
+	wire 	inBus, convEna;
+	reg 	outBus;
+  
+  	always @(posedge inBus or negedge convEna) 
+		begin: Converter1
+    	if ((inBus == 0)) begin
+        	outBus <= 0;
+    		end
+   	 	else begin
+        	if (convEna) begin
+            outBus <= ((outBus + 1) % 256);
+        	end
+    	end
+	end
+
+endmodule  // end converter module */
