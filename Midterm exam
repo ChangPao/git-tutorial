@@ -1,0 +1,243 @@
+Northwestern Polytechnic University
+EE461 Verilog-HDL
+2020 Spring Midterm Exam
+
+Student Name:  Chang Herr    Student ID:  19544
+
+
+1. Identify the bugs in the following snippet of source code and fix them.
+module module;
+time a;
+reg b, c;
+assign begin
+a = (b)? b : c;
+end
+endmodule
+Result:  
+module module1;
+	time a;
+	reg b, c;
+	initial begin
+		a = (b)? b : c;
+	end
+endmodule
+
+
+2. What is delay time for the following program?
+`timescale 100ps / 100ps
+module sampleDesign (z,x1,x2);
+input x1, x2;
+output z;
+nor #3.1415 (z, x1, x2);
+endmodule
+Result:
+Time delay is 314ps 
+
+
+3. What are the values of (a = = = b) and (a ! = = b) if a = 4’b01xz, b = 4’b xz10?
+Code for question #3, 4:
+module Operators(); 
+  reg [3:0] a;
+  reg [3:0] b, c;
+   initial begin  
+    a = 4'b01xz;
+    b = 4'bxz10;
+    c = 4'bxz01;
+    
+    $display("a===b: %b", (a === b));
+    $display("a!==b: %b\n", (a !== b));
+    $display(" ~c : %b", (~c));
+    $display(" !c : %b\n", (!c));
+  end 
+endmodule
+Result:
+a===b: 0
+a!==b: 1`
+
+4. When a is 4’bxz01, what are values of ~a and !a ?
+Result:
+~a : xx10
+ !a : 0
+
+
+5. Please calculate b and c’s values.
+module test;
+reg[3:0] a;
+wire[3:0] b, c;
+assign b = a << 2;
+assign c = 2 << a;
+initial begin
+a=4’b0010;
+#10 $finish;
+end
+endmodule
+Result:
+a value: 0010
+b value: xx00
+c value: zzzz
+
+
+
+6. Assuming that there are three students to vote whether they eat in the restaurant ABC
+or not. If the minority of them agrees to go, the rest of them will follow. Write UDP to
+implement it.
+
+primitive agree(going, std1,std2,std3 );
+output going;
+
+input std1;
+input std2;
+input std3;
+
+endprimitive
+
+
+7. Fix the bugs in the following RTL module
+
+module test;
+wire a;
+wire[1:0] b;
+wire[2:0] c;
+wire[3:0] d;
+always@(a or b or posedge c)begin
+c <= a+b;
+d <= b+ c;
+assign a <= a+d;
+end
+endmodule
+
+Result:
+module test;
+  	reg a;
+  	reg[1:0] b;
+	reg[2:0] c;
+	reg[3:0] d;
+  
+  always@(a or b or posedge c)begin
+	c <= a+b;
+	d <= b+c;
+  	a <= a+d;
+	end
+endmodule
+
+
+
+8. Design a module in RTL (not gate level) to calculate output for two inputs x and y in
+32 bits with using only adders and inverters, no more else. And ignore overflow issue.
+out = 14x + 16y
+
+
+
+9. What is different between continuous assignment and always block in the following
+code?
+
+module test;
+wire a;
+reg b, c, d;
+assign a = (b)? c: d;
+endmodule
+module test;
+reg a;
+reg b, c, d;
+always@(*)begin
+if(b) a = c;
+else a = d;
+
+endmodule
+
+Result:   The always module missing the “end” after the always blk.  This cause an systax error when complied
+module testassign;
+	wire a;
+	reg b, c, d;
+	assign a = (b)? c: d;
+
+endmodule
+
+module testalways;
+	reg a;
+	reg b, c, d;
+	always@(*)begin
+		if(b) a = c;
+		else a = d;
+    end
+endmodule
+
+
+
+10. Design Gray counter to count 6 in RTL with clock signal
+
+Gray Bin
+0 0000 0000
+1 0001 0001
+2 0011 0010
+3 0010 0011
+4 0110 0100
+5 0111 0101
+
+
+
+11. Correct the following bad design module 
+module test;
+ reg a, b, c, en; 
+always@(a or en)begin
+ if(en) c = a | b;
+ end 
+endmodule 
+Result:
+
+module test;
+  reg[2:0] a, b, c, en; 
+  always@(posedge a or negedge en)begin
+    if(~en) c = a;
+    else c = b;
+ end 
+endmodule
+
+
+
+12. What is different between case and casex? 
+Both are must be within “always” combinational logic or sequential logic blk or initial blk(non-synth.).  A non-priority Mux in hardware synthesized.
+Case – Match: exactly 0, 1, x and z like "===". ? =X no more
+Casex – Match: z=x, x/z = 0,1, x and z.
+
+
+
+13. Fix the bugs in Fibonacci sequence generator module in behavioral level. 
+module fibonacci(n, out_o); 
+input n; // nth number’s location in sequence
+output out_o; // nth number’s value 
+wire i, num1, num2; 
+for(i = 0, i < (n - 2),++i ) begin 
+out_o = (num1 + num2); 
+num1 = num2; 
+num2 = out_o; 
+end
+ initial begin
+ num1 = 0; 
+num2 = 1; 
+$monitor(“num1=%0d,num2=%0d, out=%0d”, num1, num2, out_o); 
+end 
+endmodule
+
+Result:  code don’t work still has errors
+
+module fibonacci(n, out_o); 
+	input n; 		// nth number’s location in sequence
+	output out_o; 	// nth number’s value 
+	wire i, num1, num2; 
+// assign	 i = 10;
+  // for(i = 0; i < (n + 2); i = i + 1 ) 
+  	 for(i = 0; i < (n - 2); i = i + 1) begin 
+   //    {
+       	out_o = (num1 + num2);
+	//	num1 = num2; 
+	//	num2 = out_o; 
+    	
+   //    }
+	end
+ 	initial begin
+ 		num1 = 4; 
+		num2 = 1; 
+		$monitor(“num1=%0d,num2=%0d, out=%0d”, num1, num2, out_o); 
+	end 
+endmodule*/
