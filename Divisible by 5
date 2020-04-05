@@ -1,0 +1,125 @@
+// ***********   Detect bit stream divisible by 5 Code  *****************
+
+module div5(
+  input clk, rst,
+  input in,
+  output	reg	out
+		);
+	parameter	pIdle = 6'b000001;
+	parameter	pRem0 = 6'b000010;
+	parameter	pRem1 = 6'b000100;
+	parameter	pRem2 = 6'b001000;
+	parameter	pRem3 = 6'b010000;
+	parameter	pRem4 = 6'b100000;
+
+	reg[5:0]		curSt_r;
+	reg[5:0]		nxtSt_r;
+
+	always@(posedge clk)begin
+		if(rst)		curSt_r <= #1  pIdle;
+		else		curSt_r <= #1  nxtSt_r;
+	end
+	always@(*)begin
+		out = 1'b0;
+		case(curSt_r)
+			pIdle: begin
+					if(in==0)begin
+						out = 1'b1;	
+						nxtSt_r = pRem0;
+						end
+					else	nxtSt_r = pRem1;
+					end	
+          	pRem0: begin
+				if(in==0) begin
+					out = 1'b1;
+					nxtSt_r = pRem0;
+				end
+				else	nxtSt_r = pRem1;
+				end
+			pRem1: begin
+				if(in==0)	nxtSt_r = pRem2;
+				else		nxtSt_r = pRem3;
+				end
+			pRem2: begin
+				if(in==0) nxtSt_r = pRem4;
+				else begin
+					out=1'b1;
+					nxtSt_r = pRem0;
+				end
+				end
+			pRem3: begin
+				if(in==0) nxtSt_r = pRem1;
+				else	nxtSt_r = pRem2;
+				end
+		    pRem4: begin
+					if(in==0) nxtSt_r = pRem3;
+					else	nxtSt_r = pRem4;
+					end
+		endcase
+	end
+endmodule
+
+
+
+`timescale 1ns/100ps 
+`include "div5.v"
+
+module tb_det101();
+	reg seq_in;
+	reg clock;
+	reg reset;
+	wire detect_out;
+
+	div5 UUT (
+      	.in(seq_in), 
+		.clk(clock), 
+		.rst(reset), 
+		.out(detect_out)
+    	); 
+
+    always #1 clock = ~clock;
+  
+ 	initial begin 
+		seq_in = 0;
+		reset = 1;
+		#10	reset = 0;
+		#10	seq_in = 1;
+		#10	seq_in = 0;
+		#10	seq_in = 1; 
+		#10	seq_in = 0; 
+		#10 seq_in = 1; 
+		#10	seq_in = 0; 
+      
+      	#10	reset = 1;
+		#10	seq_in = 1;
+		#10	seq_in = 0;
+		#10	seq_in = 1; 
+		#10	seq_in = 0; 
+		#10 seq_in = 1; 
+		#10	seq_in = 0; 
+      
+        #10	reset = 0;
+		#10	seq_in = 1;
+		#10	seq_in = 0;
+		#10	seq_in = 1; 
+		#10	seq_in = 0; 
+		#10 seq_in = 1; 
+		#10	seq_in = 0;
+	end
+  
+	initial begin 
+		$dumpfile("dump.vcd"); 
+		$dumpvars; 
+  	end 
+endmodule
+
+/*
+[2020-04-05 02:36:27 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+./det101.v:3: warning: timescale for det101 inherited from another file.
+testbench.sv:3: ...: The inherited timescale is here.
+VCD info: dumpfile dump.vcd opened for output.
+Finding VCD file...
+./dump.vcd
+[2020-04-05 02:36:28 EDT] Opening EPWave...
+Done
+*/
