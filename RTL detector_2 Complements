@@ -1,0 +1,147 @@
+/*******************************************************************************
+
+Author/Name:		Chang Herr
+Available Date:		2/11/2020 6:15:00 PM 
+Due Date:  			2/19/2020 5:45:00 PM (Past Due)  Allow Late Submission 
+Project Description:  Lab #4 - Questions:
+1. Design a detector to detect if all bits are 0s or all 1s in verilog RTL module 
+with testbench.
+2. Design 2's complement number converter in verilog RTL module with testbench 
+
+********************************************************************************/
+
+
+// ***********   RTL  Detector Code ***********************
+//`timescale 10ns/100ps 
+module detector(sin, clk, reset, y);
+  
+	input sin, clk, reset;
+	output y;
+	reg y;
+  	reg [1:0] r_reg, n_reg;
+  
+//  	assign clk = 1;
+  	assign sin = 0;
+	parameter s0=2'b00,s1=2'b01,s2=2'b10;
+  
+	always @(posedge clk or posedge reset)
+         if (reset)
+         	r_reg <= s0;
+         else
+         	r_reg <= n_reg;
+  
+	always @(r_reg or sin)
+       		if (r_reg==s0 && sin==0) n_reg=s0;
+       else if (r_reg==s0 && sin==1) n_reg=s1;
+       else if (r_reg==s1 && sin==0) n_reg=s0;
+       else if (r_reg==s1 && sin==1) n_reg=s2;
+       else if (r_reg==s2 && sin==0) n_reg=s0;
+       else if (r_reg==s2 && sin==1) n_reg=s2;
+  
+	always @(r_reg or sin)
+		if (r_reg==s2 && sin==0) y=1;
+		else y=0;
+  
+endmodule
+
+//*********   RTL Detector Test Bench code ***********************
+
+//`timescale 10ps/100ns
+module detectorTB();
+  reg cin, clock, rst;
+  wire yy;
+  
+  detector UUT (
+    			.sin(cin),
+    			.clk(clock),
+    			.reset(rst), 
+    			.y(yy)
+        		);
+  
+  initial begin
+    cin = 0;
+    clock = 0;
+    rst = 1;
+  	end
+  
+  initial repeat (45) #7 clock = ~clock;
+  initial repeat (25) #14 cin = ~cin;
+  initial begin
+    #25 rst = 1;
+    #15 rst = 0;
+        
+    #45 rst = 1;
+    #25 rst = 0;
+        
+    #25 rst = 1;
+    #15 rst = 0;
+  	end
+  
+  always @ (yy) if (yy == 1)
+    $display ("A 1 was detected on y at time = %t", $time);
+  
+  initial begin        
+     $dumpfile("dump.vcd");
+     $dumpvars; 							     
+   end  
+  
+endmodule
+
+
+
+//Questions 2:  Design 2's complement number converter in verilog RTL module with testbench 
+
+// ***********   2's Complement Code ***********************
+
+module Complement_2(
+  	input     	[2:0] a_i,
+  	output  wire   [2:0] b, c
+		);
+
+  	assign	b = ~a_i + 1'b1;
+  	assign 	c = -a_i ;
+  
+endmodule
+
+// ***********   2's Complement Test Bench *********************
+
+`include "ca2.v"
+module tb_ca2();
+  	reg [2:0] in_a;
+ 	wire [2:0] out_b, out_c;
+  
+  	Complement_2 UUT(
+    .a_i(in_a),
+    .b(out_b),
+    .c(out_c)
+  	);
+
+    initial begin
+    #15 in_a = 2'b00;
+    #25 in_a = 2'b01;
+
+    #15 in_a = 2'b10;
+    #25 in_a = 2'b11;
+      
+    #25 in_a = 2'b00;
+    #15 in_a = 2'b01;
+
+    #45 in_a = 2'b10;
+    #25 in_a = 2'b11;
+      
+    #25 in_a = 2'b00;
+    #15 in_a = 2'b01;
+
+    #45 in_a = 2'b10;
+    #25 in_a = 2'b11;
+  	end
+  
+    always @ (out_c) if (out_c == 1)
+  	$display ("A 1 was detected on y at time = %h", in_a);
+  
+    initial begin        
+     $dumpfile("dump.vcd");
+     $dumpvars; 							     
+   	end  
+  
+endmodule
