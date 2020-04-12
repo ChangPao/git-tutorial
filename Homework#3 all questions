@@ -1,0 +1,486 @@
+
+/******************************************************************
+Name: Chang Herr
+Student ID: 19544
+Course Term:  Spring 2020 – EE461 – Digital Design and HDL Verilog 
+Instructor: Mr. Yang, Alex
+
+Homework 3:  Due day - 2/23/20
+
+******************************************************************/
+
+//****************    Qestion #1   **************************
+
+//Design a static logic gate f = (a + b)c in Verilog modeling by 
+//PMOS/NMOS devices based on the logic schematic as follows.
+//And then write the testbench to verify the design to cover all 
+//input combinations and some x/z.
+
+// Design code:
+
+module pMOS_nMOS(input a_i, b_i, c_i, output f_o);
+  	wire a_i, b_i, c_i; 
+  	wire f_o;
+
+	supply1 vdd;
+	supply0 gnd;
+	wire C_pmosAB;
+	wire C_nmosAB;
+
+	pmos pmosA(C_pmosAB, vdd, a_i);
+	pmos pmosB(f_o, C_pmosAB, b_i);
+	pmos pmosC(f_o, vdd, c_i);
+	
+	nmos nmosA(gnd, C_nmosAB, a_i);
+	nmos nmosB(gnd, C_nmosAB, b_i);
+	nmos nmosC(C_nmosAB, f_o, c_i);
+	
+endmodule
+
+// Test Bench:
+
+`include "pn_mos.v"
+module testbench;
+	reg a_r;
+	reg b_r;
+	reg c_r;
+	wire f_w;
+	pMOS_nMOS u(
+		.a_i (a_r),
+		.b_i (b_r),
+		.c_i (c_r),
+		.f_o (f_w)
+		);
+	initial begin
+		   a_r = 1'b0; b_r = 1'b0; c_r = 1'b0;
+		#5 a_r = 1'b1; b_r = 1'b1; c_r = 1'b1;
+		#5 a_r = 1'b0; b_r = 1'b0; c_r = 1'b0;
+		#5 a_r = 1'b1; b_r = 1'b1; c_r = 1'b1;
+		
+		   a_r = 1'b0; b_r = 1'b0; c_r = 1'b0;
+		#5 a_r = 1'b1; b_r = 1'b1; c_r = 1'b1;
+		#5 a_r = 1'b0; b_r = 1'b0; c_r = 1'b0;
+		#5 a_r = 1'b1; b_r = 1'b1; c_r = 1'b1;
+		#5 $monitor("a_r = %b ", a_r, "b_r = %b ", b_r, "c_r = %b ", c_r);
+		#5 $finish;
+	end
+endmodule
+
+
+// Result: this code doesn't work, don't know why.
+
+[2020-03-31 00:13:38 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+a_r = 1 b_r = 1 c_r = 1 
+Done
+
+
+//****************    Qestion #2   **************************
+
+//Design a 2-to-1 mux UDP, and write testbench to assign selection
+//bit to 0, 1 and X/Z to verify you design.
+
+//*****************   Design code  ****************
+
+module MUX_2to1(
+    Input_m0, 
+	Inpupt_m1,
+    sel_mX,
+    Out_mZ
+    );
+    input Input_m0, Inpupt_m1, sel_mX;
+    output Out_mZ;
+    reg Out_mZ;
+	
+    always @(Input_m0,Inpupt_m1,sel_mX)
+    begin
+        if(sel_mX == 0) 
+            Out_mZ = Input_m0;  
+        else
+            Out_mZ = Inpupt_m1;  
+    end
+endmodule
+
+//**************  Test Bench  *******************
+
+module TB_MUX_2to1();
+    reg Input_0, Inpupt_1, sel_X;
+    wire Out_Z;
+
+    MUX_2to1 UUT (
+        .Input_m0(Input_0), 
+        .Inpupt_m1(Inpupt_1), 
+        .sel_mX(sel_X), 
+        .Out_mZ(Out_Z)
+    	);
+
+    initial begin
+        // Apply Inputs
+      Input_0 = 0;
+      Inpupt_1 = 0;
+      sel_X = 0;
+      #10;
+      Input_0 = 0;      
+      Inpupt_1 = 0;      
+      sel_X = 1;      
+      #10;
+      Input_0 = 0;      
+      Inpupt_1 = 1;      
+      sel_X = 0;      
+      #10;
+      Input_0 = 0;      
+      Inpupt_1 = 1;      
+      sel_X = 1;      
+      #10;
+      Input_0 = 1;      
+      Inpupt_1 = 0;      
+      sel_X = 0;      
+      #10;
+      Input_0 = 1;      
+      Inpupt_1 = 0;      
+      sel_X = 1;      
+      #10;
+      Input_0 = 1;      
+      Inpupt_1 = 1;      
+      sel_X = 0;      
+      #10;
+      Input_0 = 1;      
+      Inpupt_1 = 1;      
+      sel_X = 1;      
+      #10;
+    end
+      
+    initial begin        
+     $dumpfile("dump.vcd"); 
+     $dumpvars; 							    
+   	end  
+endmodule
+
+// ************  Result  ***********************
+
+[2020-03-30 01:00:24 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+VCD info: dumpfile dump.vcd opened for output.
+Finding VCD file...
+./dump.vcd
+[2020-03-30 01:00:25 EDT] Opening EPWave...
+Done
+
+//*****************   Qestion #3   **************************
+
+//Create top module to instantiate mux UDPs from the above primitive and system gates
+//with delay time as below and simulate it by testbench with only several inputs values.
+//What is the delay time of longest path from inputs to output in hand calculation if we
+//don’t consider the logic values of selection bits in two mux? If D is either 1 or 0, 
+//what is the possible delay time of longest path from inputs to output? 
+
+//*****************   Design code  *************************
+
+primitive udpBUF1(
+	out, in
+	);
+	output out; 
+	input in; 
+	table // a b : out;
+		0 : 1;
+		1 : 0;
+
+	endtable
+endprimitive
+
+primitive udpBUF2(
+	out, in
+	);
+	output out; 
+	input in; 
+	table // a b : out;
+		0 : 1;
+		1 : 0;
+
+	endtable
+endprimitive
+
+primitive udpBUF3(
+	out, in
+	);
+	output out; 
+	input in; 
+	table // a b : out;
+		0 : 1;
+		1 : 0;
+
+	endtable
+endprimitive
+
+primitive udpOR(
+	out_o,
+	a_i, // Port list
+	b_i
+	);
+	output out_o; 
+	input a_i; 
+	input b_i;
+	table // a b : out;
+		0 0 : 0;
+		0 1 : 1;
+		1 0 : 1;
+		1 1 : 1;
+	endtable
+endprimitive
+
+primitive udpXOR(
+	out_o,
+	a_i, // Port list
+	b_i
+	);
+	output out_o; 
+	input a_i; 
+	input b_i;
+	table // a b : out;
+		0 0 : 0;
+		0 1 : 1;
+		1 0 : 1;
+		1 1 : 0;
+	endtable
+endprimitive
+
+primitive udpAnd(
+	out_o,
+	a_i, // Port list
+	b_i
+	);
+	output out_o; 
+	input a_i; 
+	input b_i;
+	table // a b : out;
+		0 0 : 0;
+		0 1 : 0;
+		1 0 : 0;
+		1 1 : 1;
+	endtable
+endprimitive
+
+primitive udpNand(
+	out_o,
+	a_i, // Port list
+	b_i
+	);
+	output out_o; 
+	input a_i; 
+	input b_i;
+	table // a b : out;
+		0 0 : 1;
+		0 1 : 1;
+		1 0 : 1;
+		1 1 : 0;
+	endtable
+endprimitive
+
+module mux1_2to1(Input_mo, Input_m1, Sel_mx, Out_mz);
+	input wire Input_mo, Input_m1, Sel_mx;
+	output reg Out_mz;
+
+	always @(Input_mo or Input_m1 or Sel_mx)
+	begin
+		if(Sel_mx) 
+			Out_mz= Input_m1;
+		else
+			Out_mz=Input_mo;
+	end
+endmodule
+
+module mux2_2to1(Input_mo, Input_m1, Sel_mx, Out_mz);
+	input wire Input_mo, Input_m1, Sel_mx;
+	output reg Out_mz;
+
+	always @(Input_mo or Input_m1 or Sel_mx)
+	begin
+		if(Sel_mx) 
+			Out_mz= Input_m1;
+		else
+			Out_mz=Input_mo;
+	end
+endmodule
+
+
+
+
+ // End of Question# 3 Code
+
+
+// *************  Test Bench Question #3 ********************
+`include "all_subMod.v"
+module udpFA();
+  reg A, B, C, D;
+  wire Out;
+  
+  wire out_u1, out_u2, out_u3, out_u4, out_u5, out_u6, out_u7;
+  
+  udpOR u1(
+    .a_i(A),
+    .b_i(B),
+    .out_o(out_u1)
+  		);
+  udpBUF1 u2(
+    .in(C),
+    .out(out_u2)
+  		);
+  udpOR u4(
+    .a_i(out_u3),
+    .b_i(out_u3),
+    .out_o(out_u4)
+  		);
+  udpBUF2 u5(
+     .in(out_u3),
+     .out(out_u5)
+  		);
+  udpBUF3 u6(
+      .in(D),
+      .out(out_u6)
+  		);
+		
+  mux1_2to1 u3(
+    .Sel_mx(D),
+    .Input_mo(out_u1),
+    .Input_m1(out_u2),
+    .Out_mz(out_u3)
+  		);
+  
+  mux2_2to1 u7(
+    .Sel_mx(out_u6),
+    .Input_mo(out_u4),
+    .Input_m1(out_u5),
+    .Out_mz(out_u7)
+  		); 
+  
+  	initial begin
+		   	A = 2'b00; B = 2'b00; C = 2'b01; D = 1;
+      	#5	A = 2'b01; B = 2'b01; C = 2'b01; D = 0;
+      	#5	A = 2'b10; B = 2'b10; C = 2'b10; D = 1;
+      	#5	A = 2'b11; B = 2'b11; C = 2'b11; D = 0;
+
+      	#10	A = 2'b00; B = 2'b00; C = 2'b01; D = 0;
+      	#10	A = 2'b01; B = 2'b01; C = 2'b01; D = 1;
+      	#10	A = 2'b10; B = 2'b10; C = 2'b10; D = 0;
+      	#10	A = 2'b11; B = 2'b11; C = 2'b11; D = 1;
+      
+      	#5	A = 2'b00; B = 2'b00; C = 2'b01; D = 0;
+      	#5	A = 2'b01; B = 2'b01; C = 2'b01; D = 1;
+      	#5	A = 2'b10; B = 2'b10; C = 2'b10; D = 0;
+      	#5	A = 2'b11; B = 2'b11; C = 2'b11; D = 1;
+      
+      	#10	A = 2'b00; B = 2'b00; C = 2'b01; D = 0;
+      	#10	A = 2'b01; B = 2'b01; C = 2'b01; D = 1;
+      	#10	A = 2'b10; B = 2'b10; C = 2'b10; D = 0;
+      	#10	A = 2'b11; B = 2'b11; C = 2'b11; D =1;
+      
+      	#5	A = 2'b00; B = 2'b00; C = 2'b01; D = 0;
+      	#5	A = 2'b01; B = 2'b01; C = 2'b01; D = 1;
+      	#5	A = 2'b10; B = 2'b10; C = 2'b10; D = 0;
+      	#5	A = 2'b11; B = 2'b11; C = 2'b11; D = 1;
+      	$finish;
+    end
+  
+  	initial begin        
+  		$dumpfile("dump.vcd");
+  		$dumpvars;
+  		#10000 
+  		$finish;							       	
+    end   
+  
+endmodule
+
+/************* Compile Result Question #3  ***************
+
+[2020-04-07 02:33:08 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+VCD info: dumpfile dump.vcd opened for output.
+Finding VCD file...
+./dump.vcd
+[2020-04-07 02:33:09 EDT] Opening EPWave...
+Done
+*/
+
+
+
+// Question 4.	Fix the bugs in the following example primitive and explain why.
+
+//#include “basicPrimitive.v” 
+primitive PrimiExample(q, a, b, c, d, e, f);
+	output q; 
+	input  a, c, b, d, e, f; 
+                       
+	table //a c b d e f  :q;
+			0 1 0 1 0 1  :0;
+			1 0 1 0 1 0  :1;
+			0 1 0 1 0 1  :0;
+      		1 0 1 0 1 0  :1;
+    endtable 
+endprimitive
+
+//*************** Qestion #4 Test Bench *****************
+
+`include "PrimiExample.v"
+module TB_PrimiExample(); 
+	reg  a, b, c, d, e, f; 
+	wire q; 
+
+  PrimiExample u0(
+    .a(a), .b(b), .c(c), 
+    .d(d), .e(e), .f(f), 
+    .q(q)
+  	); 
+  
+	initial begin
+      	a = 1; b = 0; c = 1; d = 0; e = 1; f = 0;
+     #5	a = 0; b = 1; c = 0; d = 1; e = 0; f = 1;
+     #5	a = 1; b = 0; c = 1; d = 0; e = 1; f = 0;
+     #5	a = 0; b = 1; c = 0; d = 1; e = 0; f = 1;
+      
+     #5 a = 1; b = 0; c = 1; d = 0; e = 1; f = 0;
+     #5	a = 0; b = 1; c = 0; d = 1; e = 0; f = 1;
+     #5	a = 1; b = 0; c = 1; d = 0; e = 1; f = 0;
+     #5	a = 0; b = 1; c = 0; d = 1; e = 0; f = 1;
+     
+     #5 a = 1; b = 0; c = 1; d = 0; e = 1; f = 0;
+     #5	a = 0; b = 1; c = 0; d = 1; e = 0; f = 1;
+     #5	a = 1; b = 0; c = 1; d = 0; e = 1; f = 0;
+     #5	a = 0; b = 1; c = 0; d = 1; e = 0; f = 1;
+      
+     #5 a = 1; b = 0; c = 1; d = 0; e = 1; f = 0;
+     #5	a = 0; b = 1; c = 0; d = 1; e = 0; f = 1;
+     #5	a = 1; b = 0; c = 1; d = 0; e = 1; f = 0;
+     #5	a = 0; b = 1; c = 0; d = 1; e = 0; f = 1;
+      $finish;
+      
+    end
+  
+  	initial begin        
+  		$dumpfile("dump.vcd");
+  		$dumpvars;
+  		#10000 
+  		$finish;							       	
+    end 
+endmodule
+
+
+/************  Answer to question:  ******************
+
+code starting with combinational, with two output, and have a wrong set table of flip-flop primitive.  
+
+options are to decide to fixed for combinational or flip-flop primitive.
+
+with the current code the fastest way is change to combinational primitive, 
+
+why?  because the code starting with multi-input 
+
+*/
+
+
+
+//Question #5.	Generate UDP of D-Flip Flop with reset, and then build 3 bits counter in top 
+//module by instantiating UDP DFF and NOT/NAND/XOR gates in terms of following schematic. 
+//After that, write testbench to observe output results.
+
+		
+
+//Skipped.
+
+
