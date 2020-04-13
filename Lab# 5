@@ -1,0 +1,193 @@
+/***********************************************************************************
+Name: Chang Herr
+Date: 04/10/20
+
+Lab #5 (Page 60) Due day: 2/26/2020
+
+Description: 
+Complete Lab4 assignment about Non-blocking control in Lab manual 
+- Write a testbench to verify the given verilog RTL module from step1 to step6
+- Push source code onto Github
+- Submit file with simuation waveform screenshot on student portal & Github link URL
+************************************************************************************/
+
+
+//*************  Lab#4.  Non-blocking Control part#1,2.  *************************
+module three_dFF();
+
+	reg clk, clr, clr_n, pre_n;
+	output reg Q0, Q1, Q2;
+  	reg D0, D1, D2;
+
+	always@(posedge clk) Q0 <= D0; //D flip-flop
+
+	always@(negedge clk, posedge clr) //D flip-flop with asynchronous clear
+		begin
+		if (clr == 1'b1)
+		Q1 <= 1'b0;
+		else Q1 <= D1;
+	end 
+							//D flip-flop with asynchronous preset and clear
+	always@(posedge clk, negedge pre_n, negedge clr_n) 
+		begin
+        if (clr_n == 1'b0) Q2 <= 1'b0; // clear has priority over preset.
+		else if (pre_n == 1'b0) Q2 <= 1'b1;
+		else Q2 <= D2;
+		end 
+  
+   	initial begin
+		#10 clr_n = 1'b0;
+		#20 clr   = 1'b1;
+		#40 pre_n = 1'b0;
+		#30 D0 	  = 1'b1;
+      	#30 D1 	  = 1'b1;
+      	#30 D2 	  = 1'b1;
+		/*
+		#10 clr_n = 1'b0;
+		#20 clr   = 1'b1;
+		#40 pre_n = 1'b0;
+		#30 D0    = 1'b1;
+      	#30 D1    = 1'b1;
+      	#30 D2    = 1'b1;*/
+      	#5 $finish;  
+    end 
+  
+	initial // This one only for clock generation.
+ 		begin
+ 		clk <= 1'b0;
+ 		forever
+ 		#10 clk <= !clk;
+ 		end 
+  
+  	initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+  		end
+  
+endmodule
+
+
+//*****************    Part# 3         *********************************************
+
+module three_dFF();
+
+	reg clk, clr, clr_n, pre_n; 
+  	reg ena0, ena1, ena_n, ena2;
+	output reg Q0, Q1, Q2, Q3;
+  	reg D0, D1, D2, D3;
+  
+  always@(D0) if (ena0==1'b1) Q0 = D0; 
+  
+  always@(D1, ena1) if (ena1==1'b1) Q1 = D1; 
+  
+  //D latch with asynchronous clear and with enable asserted low: 
+  always@(D2, clr, ena_n)
+ 		begin
+          if (clr == 1'b1) Q2 = 1'b0;
+          else if (ena_n==1'b0) Q2 = D2;
+ 		end 
+  
+ //D latch with asynchronous preset and clear asserted low: 
+  always@(D3, pre_n, clr_n, ena2)
+ 		begin
+          if (clr_n == 1'b0) Q3 = 1'b0; // clear has priority over preset.
+          else if (pre_n == 1'b0) Q3 = 1'b1;
+          else if (ena2 == 1'b1) Q3 = D3;
+ 		end 
+    
+   	initial begin
+        #10 clr_n = 1'b0; #20 clr   = 1'b1;	#40 pre_n = 1'b0; #40 ena0  = 1'b1;
+        #40 ena1  = 1'b0; #40 ena2  = 1'b1;	#40 ena_n = 1'b0; #30 D0 	= 1'b1;
+      	#30 D1 	  = 1'b0; #30 D2 	= 1'b1; #30 D3 	  = 1'b0;  
+      
+        #10 clr_n = 1'b1; #20 clr   = 1'b0;	#40 pre_n = 1'b1; #40 ena0  = 1'b0;
+        #40 ena1  = 1'b1; #40 ena2  = 1'b0; #40 ena_n = 1'b1; #30 D0 	= 1'b0;
+      	#30 D1 	  = 1'b1; #30 D2 	= 1'b0; #30 D3 	  = 1'b1; 
+      
+        #10 clr_n = 1'b0; #20 clr   = 1'b1;	#40 pre_n = 1'b0; #40 ena0  = 1'b1;
+        #40 ena1  = 1'b0; #40 ena2  = 1'b1;	#40 ena_n = 1'b0; #30 D0 	= 1'b1;
+      	#30 D1 	  = 1'b0; #30 D2 	= 1'b1; #30 D3 	  = 1'b0;  
+      
+        #10 clr_n = 1'b1; #20 clr   = 1'b0;	#40 pre_n = 1'b1; #40 ena0  = 1'b0;
+        #40 ena1  = 1'b1; #40 ena2  = 1'b0; #40 ena_n = 1'b1; #30 D0 	= 1'b0;
+      	#30 D1 	  = 1'b1; #30 D2 	= 1'b0; #30 D3 	  = 1'b1; 
+        
+        #10 clr_n = 1'b0; #20 clr   = 1'b1;	#40 pre_n = 1'b0; #40 ena0  = 1'b1;
+        #40 ena1  = 1'b0; #40 ena2  = 1'b1;	#40 ena_n = 1'b0; #30 D0 	= 1'b1;
+      	#30 D1 	  = 1'b0; #30 D2 	= 1'b1; #30 D3 	  = 1'b0;  
+      
+        #10 clr_n = 1'b1; #20 clr   = 1'b0;	#40 pre_n = 1'b1; #40 ena0  = 1'b0;
+        #40 ena1  = 1'b1; #40 ena2  = 1'b0; #40 ena_n = 1'b1; #30 D0 	= 1'b0;
+      	#30 D1 	  = 1'b1; #30 D2 	= 1'b0; #30 D3 	  = 1'b1; 
+              
+        #10 clr_n = 1'b0; #20 clr   = 1'b1;	#40 pre_n = 1'b0; #40 ena0  = 1'b1;
+        #40 ena1  = 1'b0; #40 ena2  = 1'b1;	#40 ena_n = 1'b0; #30 D0 	= 1'b1;
+      	#30 D1 	  = 1'b0; #30 D2 	= 1'b1; #30 D3 	  = 1'b0;  
+      
+        #10 clr_n = 1'b1; #20 clr   = 1'b0;	#40 pre_n = 1'b1; #40 ena0  = 1'b0;
+        #40 ena1  = 1'b1; #40 ena2  = 1'b0; #40 ena_n = 1'b1; #30 D0 	= 1'b0;
+      	#30 D1 	  = 1'b1; #30 D2 	= 1'b0; #30 D3 	  = 1'b1; 
+
+      	#5 $finish;  
+    end 
+  
+	initial // This one only for clock generation.
+ 		begin
+ 		clk <= 1'b0;
+ 		forever
+ 		#10 clk <= !clk;
+ 		end 
+  
+  	initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+  		end
+  
+endmodule
+
+
+//***************  Part# 5 ***************************************************
+
+// This code doesn't work as expected.  I was unable debug the code.
+
+
+module Lab_4_4();
+	input Din, ClkIn, ClrIn, ShiftEna;
+  	output Q0[0], Q1[1], Q2[2], Q3[3], Qout[4];
+//  	wire Q0[0], Q1[1], Q2[2], Q3[3], Qout[4];
+  	reg c0, c1, c2, c3, c4;
+	reg sel, in1, in2;
+  
+  	assign c0 = Q0[0], c1 = Q1[1], c2 = Q2[2], c3 = Q3[3], c4 = Q4[4];
+  
+    always@(sel, in1, in2)
+ 		if (sel==1'b0)
+ 		outbit = in1;
+ 		else outbit = in2;
+  
+	always @ (posedge ClrIn or posedge ClkIn)
+		if (ClrIn == 1'b1)
+          Q0[0] <= 1'b0;
+		else if (ShiftEna == 1'b1)
+			Q0[0] <= ~Q0[0];
+  			always @ (posedge ClrIn or negedge c0)
+				if (ClrIn == 1'b1)
+                  Q1[1] <= 1'b0;
+				else if (ShiftEna == 1'b1)
+					Q1[1] <= ~Q1[1];
+  					always @ (posedge ClrIn or negedge c1)
+						if (ClrIn == 1'b1)
+                          Q2[2] <= 1'b0;
+						else if (ShiftEna == 1'b1) 
+                          	Q2[2] <= ~Q2[2];
+  							always @ (posedge ClrIn or negedge c2)
+								if (ClrIn == 1'b1)
+                                  Q3[3] <= 1'b0;
+								else if (ShiftEna == 1'b1) 
+                                  	Q3[3] <= Q3[3];
+  									always @ (posedge ClrIn or negedge c3)
+										if (ClrIn == 1'b1)
+                                          Qout[4] <= 1'b0;
+										else if (ShiftEna == 1'b1) 
+                                        	Qout[4] <= ~Qout[4];
+ endmodule
