@@ -1,0 +1,233 @@
+/******************************************************************************************
+Name: Chang Herr
+Date: 04/13/20
+
+Homework #5 Due day: 4/5/2020
+
+Instruction: 
+1. Push answer sheets/source code to Github 
+2. Please follow the code style rule like programs on handout. 
+3. Overdue homework submission could not be accepted. 
+4. Takes academic honesty and integrity seriously (Zero Tolerance of Cheating & Plagiarism)
+
+******************************************************************************************/
+
+1.	Write LFSR up & down count module to create 6-bits pseudo random number. 
+
+module VM_module();
+  
+	input rst, D, N;				//D-insert dime
+	output open;
+	
+  	wire rst;
+  	reg D, N, clk, open;
+  
+	parameter pS0 = 4'b0001;	 //4-state-> 4 DFFs
+	parameter pS1 = 4'b0010;
+	parameter pS2 = 4'b0100;
+	parameter pS3 = 4'b1000;
+
+  	reg[4:0] curSt_r;
+  	reg[4:0] nxtSt_r;
+
+	always@(posedge clk) begin	//Seq. blk
+		if(rst)	curSt_r [1:0] <= #1	pS0;
+		else	curSt_r [1:0] <= #1	nxtSt_r[1:0];
+	end
+
+	always@(*)begin				//Combo blk
+		open = 0;				// Avoid inferred latch
+		case(curSt_r) 			// Recommend “case”
+			pS0: begin
+				nxtSt_r = pS0; 		
+				case({D, N}) 
+					2'b00: begin 
+						nxtSt_r= pS0; 
+					end 
+					2'b01: begin 
+						nxtSt_r= pS1; 
+					end 
+					2'b10: begin 
+						nxtSt_r= pS2; 
+					end 
+								//default: nxtSt_r = pS0;
+				endcase 		// endcase {D, N}
+			end
+			pS1: begin
+				case({D, N}) 
+				2'b00: begin 
+					nxtSt_r= pS1; 
+				end
+				2'b01: begin 
+					nxtSt_r= pS2; 
+				end 
+				2'b10: begin 
+					open = 1'b1; 
+					nxtSt_r= pS3; 
+				end 
+				default: nxtSt_r = pS0; 
+				endcase
+				end
+			pS2: begin
+              case({D, N}) 
+				2'b00: begin 
+					nxtSt_r= pS2; 
+					end 
+				2'b01: begin 
+					open = 1'b1; 
+					nxtSt_r= pS3; 
+					end 
+				2'b10: begin 
+					open = 1'b1;
+					nxtSt_r= pS3; 
+					end 
+					default: nxtSt_r = pS0; 
+				endcase
+				end
+			pS3: begin
+				nxtSt_r= pS0; 
+			end
+		endcase
+	end  // end always@*
+
+  	initial // This one only for clock generation.
+ 		begin
+ 		clk <= 1'b0;
+ 		forever
+ 		#10 clk <= !clk;
+ 		end 
+  
+   	initial begin 
+
+		#30	rst = 0;
+		#40	D = 1;
+		#10	N = 0;
+      
+      	#30	rst = 1;
+		#40	D = 0;
+		#10	N = 1;
+      
+  /*    #30	rst = 0;
+		#40	D = 1;
+		#10	N = 0;
+     
+      	#30	rst = 1;
+		#40	D = 0;
+		#10	N = 1;
+      
+      	#30	rst = 0;
+		#40	D = 1;
+		#10	N = 0;
+      
+      	#30	rst = 1;
+		#40	D = 0;
+		#10	N = 1;
+      
+      	#30	rst = 0;
+		#40	D = 1;
+		#10	N = 0;
+     
+      	#30	rst = 1;
+		#40	D = 0;
+		#10	N = 1;
+      
+      	#30	rst = 0;
+		#40	D = 1;
+		#10	N = 0;
+      
+      	#30	rst = 1;
+		#40	D = 0;
+		#10	N = 1;
+      
+      	#30	rst = 0;
+		#40	D = 1;
+		#10	N = 0; */
+      
+      	#5 $finish;
+	end
+  
+  	initial begin 
+		$dumpfile("dump.vcd"); 
+		$dumpvars; 
+  	end 
+  
+endmodule
+
+//*********    2.	Design frequency divider by 7 
+
+module Freq_D_by2(clk ,rst,out_clk );   // Code
+	output reg out_clk;
+	input clk ;
+	input rst;
+	
+  always @(posedge clk)
+    begin
+	if (~rst)
+      out_clk <= 1'b0;
+	else
+      out_clk <= ~out_clk;	
+	end
+endmodule
+
+
+`timescale 1ns/100ps
+`include "Freq_D_by2"
+module frequencydiv;   // Test Bench
+	output reg clk;
+	output reg rst;
+	input wire out_clk;
+	
+  	Freq_D_by2 freq1(clk,rst,out_clk);
+	initial
+		clk = 1'b0;
+		always
+			#10 clk = ~clk;
+		initial
+		begin
+			$monitor($time,"clk = %b,rst = %b,out_clk = %b",clk,rst,out_clk);
+			rst =0;
+			#20 rst =1;
+			#100 $finish;
+		end
+		
+  	initial begin        
+  		$dumpfile("dump.vcd");
+  		$dumpvars;
+  		#10000 
+  		$finish;							       	
+    end 
+	
+endmodule
+
+/*****************   Result  ******************************************
+[2020-04-13 05:35:12 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+./Freq_D_by2:1: warning: timescale for Freq_D_by2 inherited from another file.
+testbench.sv:1: ...: The inherited timescale is here.
+VCD info: dumpfile dump.vcd opened for output.
+                   0clk = 0,rst = 0,out_clk = 	x
+                  10clk = 1,rst = 0,out_clk = 	0
+                  20clk = 0,rst = 1,out_clk = 	0
+                  30clk = 1,rst = 1,out_clk = 	1
+                  40clk = 0,rst = 1,out_clk = 	1
+                  50clk = 1,rst = 1,out_clk = 	0
+                  60clk = 0,rst = 1,out_clk = 	0
+                  70clk = 1,rst = 1,out_clk = 	1
+                  80clk = 0,rst = 1,out_clk = 	1
+                  90clk = 1,rst = 1,out_clk = 	0
+                 100clk = 0,rst = 1,out_clk = 	0
+                 110clk = 1,rst = 1,out_clk = 	1
+                 120clk = 0,rst = 1,out_clk = 	1
+Finding VCD file...
+./dump.vcd
+[2020-04-13 05:35:13 EDT] Opening EPWave...
+Done
+*************************************************************************/
+
+
+//3. Design CRC-4 decoder in Verilog
+
+// Verilog HDL for perif, cod_crcuc _functional
+// Code CRC.
+
+
+Unable to finish.
