@@ -16,7 +16,7 @@ Instruction:
 
 module VM_module();
   
-	input rst, D, N;				//D-insert dime
+	input rst, D, N;		//D-insert dime
 	output open;
 	
   	wire rst;
@@ -50,7 +50,7 @@ module VM_module();
 					2'b10: begin 
 						nxtSt_r= pS2; 
 					end 
-								//default: nxtSt_r = pS0;
+							//default: nxtSt_r = pS0;
 				endcase 		// endcase {D, N}
 			end
 			pS1: begin
