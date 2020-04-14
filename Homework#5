@@ -135,6 +135,38 @@ module VM_module();
   
 endmodule
 
+/***************** Result not success --  Unable to debug this code ********************
+
+[2020-04-14 03:59:45 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+testbench.sv:52: error: Port D of module VM_module is declared as input and as a reg type.
+testbench.sv:52: error: Port N of module VM_module is declared as input and as a reg type.
+testbench.sv:136: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:140: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:144: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:148: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:152: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:156: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:160: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:164: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:168: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:172: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+testbench.sv:176: error: rst is not a valid l-value in VM_module.
+testbench.sv:51:      : rst is declared here as wire.
+13 error(s) during elaboration.
+Exit code expected: 0, received: 1
+Done
+
+************************************************************/
 //*********    2.	Design frequency divider by 7 
 
 module Freq_D_by2(clk ,rst,out_clk );   // Code
