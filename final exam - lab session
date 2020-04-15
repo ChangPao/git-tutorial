@@ -1,0 +1,225 @@
+
+/***************************************************
+Northwestern Polytechnic University 
+EE461 Verilog-HDL 2020 Spring 
+Final Exam  - Lab Session
+Student Name:   Chang Pao Herr
+Student ID:  19544
+*************************************************/
+
+1. What is running results of the following module? And why?
+
+module IfTest();
+	reg [3:0] X;
+	reg [3:0] Y;
+	initial begin
+		X=4'b101x;
+		Y=4'b101z;
+		if(X= =4'b101z)begin
+			$display("Statement 1 has been selected!");
+		end
+		if(X= =Y)begin
+		$display("Statement 2 has been selected!");
+		end
+		if(X!=Y)begin
+		$display("Statement 3 has been selected!");
+		end
+		if(X= =X)begin
+		$display("Statement 4 has been selected!");
+		end
+		$display("No one has been selected!");
+		end
+endmodule
+
+/************************  Result **************
+testbench.sv:7: syntax error
+testbench.sv:7: error: Malformed conditional expression.
+testbench.sv:10: syntax error
+testbench.sv:10: error: Malformed conditional expression.
+testbench.sv:16: syntax error
+testbench.sv:16: error: Malformed conditional expression.
+Exit code expected: 0, received: 1
+Done*/
+
+Ans1:
+	
+module IfTest1();
+	reg [3:0] X;
+	reg [3:0] Y;
+	initial begin
+	X=4'b101x;
+	Y=4'b101z;
+	if(X= = =4'b101z)begin
+	$display("Statement 1 has been selected!");
+	end
+	if(X= = =Y)begin
+	$display("Statement 2 has been selected!");
+	end
+	if(X!= =Y)begin
+	$display("Statement 3 has been selected!");
+	end
+	if(X= = =X)begin
+	$display("Statement 4 has been selected!");
+	end
+	$display("No one has been selected!");
+	end
+endmodule
+
+/************************  Result **************
+[2020-04-14 21:29:53 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+testbench.sv:29: syntax error
+testbench.sv:29: error: Malformed conditional expression.
+testbench.sv:32: syntax error
+testbench.sv:32: error: Malformed conditional expression.
+testbench.sv:35: syntax error
+testbench.sv:35: error: Malformed conditional expression.
+testbench.sv:38: syntax error
+testbench.sv:38: error: Malformed conditional expression.
+Exit code expected: 0, received: 1
+Done*/
+
+
+	
+Ans2:
+module caseTest();
+	reg [3:0] X;
+	reg [3:0] Y;
+	initial begin
+		X=4'b101x;
+		Y=4'b101z;
+		case(X)
+			4'b1010: $display("Statement 1 has been selected!");
+			4'b101x: $display("Statement 2 has been selected!");
+			4'b101z: $display("Statement 3 has been selected!");
+			4'bxxxx: $display("Statement 4 has been selected!");
+			4'bzzzz: $display("Statement 5 has been selected!");
+			default: $display("Default has been selected!");
+		endcase
+	end
+endmodule
+
+
+/************************  Result **************
+[2020-04-14 21:31:16 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+Statement 2 has been selected!
+Done*/
+
+
+Ans3:
+module casezTest();
+	reg [3:0] X;
+	initial begin
+		X=4'b1x00;
+		casez(X)
+			4'b100z: $display("Statement 1 has been selected!");
+			4'b10xx: $display("Statement 2 has been selected!");
+			4'b11xz: $display("Statement 3 has been selected!");
+			4'bxxxx: $display("Statement 4 has been selected!");
+			4'b0zzz: $display("Statement 5 has been selected!");
+		default: $display("Default has been selected!");
+		endcase
+	end
+endmodule
+
+/************************  Result **************
+[2020-04-14 21:32:39 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+Default has been selected!
+Done
+
+The code is trying to detect a statement whichever the user is design for.  Answer 2,3  
+are woking because it saperates the items into categories and it is easy for detect.
+
+Answer 4 is correct for choosing use in this case, in this case, the code need to be added another case for Y.
+*/
+
+
+// 2. Convert the following circuit into Verilog
+
+
+module Exam_F();
+	input start, num0, num1, num2, num3, coutA, CoutB; Cout1;
+	output Overflow, Count;
+	
+	reg clk, 
+	output reg Count, Overflow;
+
+	always@(start) //check for enable
+		begin
+		if (start == 1'b1)
+			always@ (num0, num1, num2, num3)begin
+				if 
+				
+		else Overflow <= Count;
+	end 
+							//D flip-flop with asynchronous preset and clear
+	always@(posedge clk, negedge pre_n, negedge clr_n) 
+		begin
+        if (clr_n == 1'b0) Q2 <= 1'b0; // clear has priority over preset.
+		else if (pre_n == 1'b0) Q2 <= 1'b1;
+		else Q2 <= D2;
+		end 
+  
+   	initial begin
+		#10 num0 = 1'b0;
+		#20 num1 = 1'b1;
+		#40 num2 = 1'b0;
+		#30 num3 = 1'b1;
+      	#30 start = 1'b1;
+      	#30 CoutA 	  = 1'b1;
+		#30 CoutB = 1'b1;
+		/*
+		#10 clr_n = 1'b0;
+		#20 clr   = 1'b1;
+		#40 pre_n = 1'b0;
+		#30 D0    = 1'b1;
+      	#30 D1    = 1'b1;
+      	#30 D2    = 1'b1;*/
+      	#5 $finish;  
+    end 
+  
+	initial // This one only for clock generation.
+ 		begin
+ 		clk <= 1'b0;
+ 		forever
+ 		#10 clk <= !clk;
+ 		end 
+  
+  	initial begin
+ 		$dumpfile("dump.vcd");
+		$dumpvars; 
+  		end
+  
+endmodule
+
+// Program incomplete!  
+
+
+//3. What is longest delay path and delay value from inputs a, b, c and d to output “out”?
+
+
+module or_circ(out, a, b, c, d);
+	output out;
+	input a, b, c, d;
+	wire e, f;
+	
+	//delay distributed to each gate
+	or #4 a1 (e, a, b);
+	or #6 a2 (f, c, d);
+	or #3 a3 (out, e, f);
+	
+endmodule
+
+The longest delay path is:  c – out and d – out.  Its freq. is 111.1MHz. 
+
+See PDF for answer calculation.
+
+
+// 4. What is the fastest clock frequency in the following reg-to-reg circuit? 
+
+The fastest clock freq. in the circuit is :  
+	Min.:  c-f = 111.1MHz
+	Typ.:  c-f = 83.3MHz
+	Max.: c-f = 66.6MHz
+ 
+See PDF for answer calculation.
+
