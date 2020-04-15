@@ -1,0 +1,360 @@
+
+
+/********************************************************
+Northwestern Polytechnic University 
+EE461 Verilog-HDL 2020 Spring 
+Final Exam 
+Student Name:   Chang Pao Herr
+Student ID:  19544
+*********************************************************/
+
+
+
+1.	In terms of the following code snippet, please draw the signal waveforms of clk & x with time scale labels. 
+
+module test;
+	reg clk;
+	reg a, b;
+	initial begin
+		clk = 1'b0;
+		a = 1'b0;
+		b = 1'b0;
+		end
+	always #10 clk =~clk;
+	always@(posedge clk)begin
+		fork
+		begin
+			#10 a = 1'b1;
+			#20 b = 1'b1;
+		end
+			#30 a = 1'b0;
+			#40 b = 1'b0;
+		join
+      $finish;
+	end
+	
+	initial begin 
+		$dumpfile("dump.vcd"); 
+		$dumpvars; 
+  	end 
+endmodule 
+
+
+
+2. What are waveforms of a & b labeling time scale within 2 clk cycles? 
+
+module test;
+	reg clk;
+	reg a, b;
+	initial begin
+		clk = 1'b0;
+		a = 1'b0;
+		b = 1'b0;
+		end
+	always #10 clk =~clk;
+	always@(posedge clk)begin
+		fork
+		begin
+			#10 a = 1'b1;
+			#20 b = 1'b1;
+		end
+			#30 a = 1'b0;
+			#40 b = 1'b0;
+		join
+      $finish;
+	end
+	
+	initial begin 
+		$dumpfile("dump.vcd"); 
+		$dumpvars; 
+  	end 
+endmodule
+
+/************************************  Result *********************
+
+2020-04-14 21:07:29 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+VCD info: dumpfile dump.vcd opened for output.
+Finding VCD file...
+./dump.vcd
+[2020-04-14 21:07:29 EDT] Opening EPWave...
+Done
+
+*****************************************************/
+
+
+
+3. Please show a’s value in loop trace table including each running step. 
+
+module test();
+	integer a;
+	integer i;
+	
+	initial begin: TEST
+		a = 50;
+		for(i=5;i>0;i=i-1) begin
+			a=a-1;
+          
+//          for(i=5;i>0;i=i+1)begin
+//                $monitor("i = %d", i);
+//         end
+          
+          	if(2 <= i) disable TEST;
+				a = a-1;
+          		end
+			a = a-1;
+  		end
+ 
+ 	initial begin
+      	$monitor("i = %d", i);
+        $display("a = %d", a);
+     	end   
+                 
+  	initial begin 
+		$dumpfile("dump.vcd"); 
+		$dumpvars; 
+  	end 
+endmodule
+
+/*
+Result:  
+
+[2020-04-14 20:00:57 EDT] iverilog '-Wall' design.sv testbench.sv  && unbuffer vvp a.out  
+a =          49
+VCD info: dumpfile dump.vcd opened for output.
+i =           5
+Done
+*/
+
+
+4. Based on the following logic diagram, complete timing statements in specify block. 
+
+
+// ***************Logic Primitive Module **********************
+
+primitive udpAnd(
+	out_o,
+	a_i, // Port list
+	b_i
+	);
+	output out_o; 
+	input a_i; 
+	input b_i;
+	table // a b : out;
+		0 0 : 0;
+		0 1 : 0;
+		1 0 : 0;
+		1 1 : 1;
+	endtable
+endprimitive
+
+primitive udpNand(
+	out_o,
+	a_i, // Port list
+	b_i
+	);
+	output out_o; 
+	input a_i; 
+	input b_i;
+	table // a b : out;
+		0 0 : 1;
+		0 1 : 1;
+		1 0 : 1;
+		1 1 : 0;
+	endtable
+endprimitive
+primitive udpOR(
+	out_o,
+	a_i, // Port list
+	b_i
+	);
+	output out_o; 
+	input a_i; 
+	input b_i;
+	table // a b : out;
+		0 0 : 0;
+		0 1 : 1;
+		1 0 : 1;
+		1 1 : 1;
+	endtable
+endprimitive
+
+//*************   Code base on the diagram  *******************************
+
+`include "Logic_delay.v"
+module test(
+	input a, b,
+	output x,y
+  	);
+//  	wire a, b;
+    wire out_u1, x, y;
+  
+      udpNand u1(
+        .a_i(a),
+        .b_i(a),
+    	.out_o(out_u1)
+  		);
+    
+      udpAnd u1(
+    	.a_i(out_u1),
+        .b_i(b),
+        .out_o(y)
+  		);
+    
+       udpOR u3(
+    	.a_i(out_u1),
+        .b_i(a),
+        .out_o(x)
+  		);
+  
+  
+  initial begin
+    $display ("\t\t a b x  y");
+    $display ($time," %b %b %b", a, b, x, y);
+// 		clk=0; d=1;
+ 	
+    #7 a=0;
+	#7 b=1; // causes setup violation
+    
+   	#3 a=0;
+	#5 b=1; // causes hold violation
+    
+ 	#3 a=0;
+ 	#1 b=1; // causes width violation
+	end
+  
+  
+	specify
+
+		// a to x & y full connection (a ? x,y) =?
+		// b to x parallel connection (b ? x) = ?
+		// b to y parallel connection (b ? y) = ?
+	endspecify
+  
+  
+    	initial begin        
+  		$dumpfile("dump.vcd");
+  		$dumpvars;
+  		#10000 
+  		$finish;							       	
+    end   
+endmodule 
+
+
+
+
+
+
+//5. What is f (max) clk if T 1.2ns clkq  , T 0.8ns setup  in the below schematic? 
+
+See the PDF file for answers.
+
+
+
+
+6. Design mealy machine to detect “1111” from serial input bit stream in Verilog module
+and FSM logic bubble diagram.
+
+//`timescale 1ns/10ps
+module 	det1111(
+		input clk, rst,
+		input in,
+		output reg out
+			);
+		parameter 	pS0_0 	= 4'b0001;
+		parameter 	pS1_1 	= 4'b0010;
+		parameter 	pS2_10 	= 4'b0100;
+		parameter 	pS3_101 = 4'b1000;
+
+		reg[3:0]	curSt_r, nxtSt_r;
+
+		always@(posedge clk, posedge rst)begin
+          	if(rst)	curSt_r <= #1 pS0_0;
+			else	curSt_r <= #1 nxtSt_r;
+			end
+
+		always@(*)begin
+			out = 1'b0;	//Avoid inferred latch
+			case(curSt_r)
+				pS0_0:begin
+					if(!in) nxtSt_r = pS0_0;
+					else	nxtSt_r = pS1_1;
+					end		
+				pS1_1:begin
+                  	if(!in) nxtSt_r = pS2_10;
+					else	nxtSt_r = pS1_1;
+					end	
+				pS2_10:begin
+					if(!in) nxtSt_r = pS0_0;
+					else begin
+						out = 1'b1;
+						nxtSt_r = pS3_101;
+			        	end
+					end
+				pS3_101:begin
+					if(!in) nxtSt_r = pS2_10;
+					else	nxtSt_r = pS1_1;
+					end
+			endcase
+		end
+  
+endmodule
+
+///`timescale 1ns/10ps 
+`include "det1111.v"
+
+module tb_det1111();
+	reg seq_in;
+	reg clock;
+	reg reset;
+	wire detect_out;
+
+	det1111 UUT (
+      	.in(seq_in), 
+		.clk(clock), 
+		.rst(reset), 
+		.out(detect_out)
+    	); 
+    
+   initial begin
+    	clock = 0;
+  	end
+  
+  	always begin
+     	#5  clock = 0;
+     	#5  clock = 1;
+  	end  
+  
+ 	initial begin 
+		seq_in = 0;
+		reset = 1;
+		#30	reset = 0;
+		#40	seq_in = 1;
+		#10	seq_in = 0;
+		#10	seq_in = 1; 
+		#20	seq_in = 0; 
+		#20 seq_in = 1; 
+		#20	seq_in = 0; 
+      
+      	#30	reset = 1;
+		#40	seq_in = 1;
+		#10	seq_in = 0;
+		#10	seq_in = 1; 
+		#20	seq_in = 0; 
+		#20 seq_in = 1; 
+		#20	seq_in = 0; 
+      
+        #30	reset =  0;
+		#40	seq_in = 1;
+		#10	seq_in = 0;
+		#10	seq_in = 1; 
+		#20	seq_in = 0; 
+		#20 seq_in = 1; 
+		#20	seq_in = 0;
+	end
+  
+	initial begin 
+		$dumpfile("dump.vcd"); 
+		$dumpvars; 
+  	end 
+endmodule
+
